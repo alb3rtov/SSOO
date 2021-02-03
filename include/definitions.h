@@ -4,9 +4,11 @@
 #define PB_PATH "./exec/pb"
 #define PC_CLASS "PC"
 #define PC_PATH "./exec/pc"
-#define N_PROCESS 3
+#define PD_CLASS "PD"
+#define PD_PATH "./exec/pd"
+#define N_PROCESS 4
 
-enum ProcessClass_T {PA, PB, PC};
+enum ProcessClass_T {PA, PB, PC, PD};
 
 struct TProcess_t {
     enum ProcessClass_T class;
