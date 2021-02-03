@@ -6,7 +6,10 @@
 #define PC_PATH "./exec/pc"
 #define PD_CLASS "PD"
 #define PD_PATH "./exec/pd"
+
 #define N_PROCESS 4
+
+#define DATA_SIZE 1000
 
 enum ProcessClass_T {PA, PB, PC, PD};
 

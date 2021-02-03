@@ -6,21 +6,26 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
+#include <time.h>
 
 #include <definitions.h>
 
 struct TProcess_t *g_process_table;
 
-pid_t  create_single_process();
 void init_process_table();
-void terminate_processes(void);
-void free_resources();
+pid_t  create_single_process();
 void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class);
 void create_process_by_class(enum ProcessClass_T class, int index_process_table);
+
 void install_signal_handler();
 void signal_handler(int signo);
+
 void wait_processes();
+
+void terminate_processes(void);
+void free_resources();
+
+void generate_log_termination();
 
 int main(int argc, char *argv[]) {
 
@@ -145,8 +150,33 @@ void install_signal_handler() {
 }
 
 void signal_handler(int signo) {
+    generate_log_termination();
     printf("\n[MANAGER] Program termination (Ctrl + C).\n");
     terminate_processes();
     free_resources();
     exit(EXIT_SUCCESS);
+}
+
+void generate_log_termination() {
+    
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    FILE *log = fopen("log.txt","a");
+
+    if (log == NULL) {
+        printf("Unable to create file.\n");
+    }
+    
+    char message[35] = "program termination (Ctrl + C) ";
+    
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    char *str_time = asctime(timeinfo);
+
+    /*strcat(message, " ");*/
+    strcat(message, str_time);
+
+    fputs(message, log);
+    fclose(log);
 }
