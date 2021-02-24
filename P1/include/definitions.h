@@ -7,14 +7,6 @@
 #define PD_CLASS "PD"
 #define PD_PATH "./exec/pd"
 
-#define N_PROCESS 4
-
-#define DATA_SIZE 1000
+#define FILE_ESTUDIANTES "estudiantes_p1.text"
 
 enum ProcessClass_T {PA, PB, PC, PD};
-
-struct TProcess_t {
-    enum ProcessClass_T class;
-    pid_t pid;
-    char *str_process_class;
-};
