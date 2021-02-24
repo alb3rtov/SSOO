@@ -41,10 +41,6 @@ void check_directory(char dir_name[]) {
     }
 }
 
-void read_filename() {
-
-}
-
 void create_directories(char filename[]) {
     
     FILE *file;
@@ -73,16 +69,6 @@ void create_directories(char filename[]) {
     }
     
     fclose(file);
-    /*
-    char buffer[256];
-    while (fgets(buffer, 256 - 1, file)) {
-        buffer[strcspn(buffer, " ")] = 0;
-        sprintf(dir_complete, "%s/%s", dir_name, buffer);
-        mkdir(dir_complete, 0777);
-    }
-
-    fclose(file);*/
-    
 }
 
 void install_signal_handler() {

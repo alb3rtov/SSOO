@@ -10,10 +10,16 @@
 
 #include <definitions.h>
 
-void create_multiple_process(const char *path[]);
-pid_t  create_single_process();
+#define SIZE    2
+#define LENGTH  10
+
+void create_multiple_process(const char process[SIZE]);
+pid_t create_single_process();
+
 void get_str_process_info(enum ProcessClass_T class, char **path);
 void create_process_by_class(enum ProcessClass_T class);
+
+void wait_processes();
 
 void install_signal_handler();
 void signal_handler(int signo);
@@ -22,17 +28,24 @@ void generate_log_termination();
 
 int main(int argc, char *argv[]) {
 
+    char process[SIZE] = {PB,PC};
+
     install_signal_handler();
 
     printf("[MANAGER %d] Starting manager program...\n",getpid());
 
     create_process_by_class(PA);
-    create_process_by_class(PB);
+    wait(NULL);
+
+    create_multiple_process(process);
+    wait_processes();
 
     printf("[MANAGER %d] Terminating manager program...\n", getpid());
 
     return EXIT_SUCCESS;
 }
+
+
 void create_process_by_class(enum ProcessClass_T class) {
     char *path = NULL;
     pid_t pid;
@@ -41,11 +54,16 @@ void create_process_by_class(enum ProcessClass_T class) {
     pid = create_single_process(path);
 
     printf("[MANAGER %d] Process child with PID %d created\n", getpid(), pid);
-    wait(NULL);
+
 }
 
-void create_multiple_process(const char *path[]) {
+void create_multiple_process(const char process[SIZE]) {
 
+    int i;
+
+    for (i = 0; i < SIZE; i++) {
+        create_process_by_class(process[i]);
+    }
 }
 
 pid_t create_single_process(const char *path) {
@@ -81,6 +99,13 @@ void get_str_process_info(enum ProcessClass_T class, char **path) {
         case PD:
             *path = PD_PATH;
             break;        
+    }
+}
+
+void wait_processes() {
+    int i;
+    for (i = 0; i < SIZE; i++) {
+        wait(NULL);
     }
 }
 
