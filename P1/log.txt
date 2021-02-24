@@ -1,1 +1,2 @@
-Program terminacion (Ctrl + C) Wed Feb  3 23:48:54 2021
+************ Log del sistema ************
+Creación de directorios finalizada.

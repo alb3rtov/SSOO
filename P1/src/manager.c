@@ -10,8 +10,6 @@
 
 #include <definitions.h>
 
-#define SIZE    2
-#define LENGTH  10
 
 void create_multiple_process(const char process[SIZE]);
 pid_t create_single_process();
@@ -19,11 +17,14 @@ pid_t create_single_process();
 void get_str_process_info(enum ProcessClass_T class, char **path);
 void create_process_by_class(enum ProcessClass_T class);
 
+void wait_one_process();
 void wait_processes();
 
 void install_signal_handler();
 void signal_handler(int signo);
 
+void system_log_message(char *message);
+FILE* create_log_file(char *filename);
 void generate_log_termination();
 
 int main(int argc, char *argv[]) {
@@ -35,11 +36,12 @@ int main(int argc, char *argv[]) {
     printf("[MANAGER %d] Starting manager program...\n",getpid());
 
     create_process_by_class(PA);
-    wait(NULL);
+    wait_one_process();
 
+    
     create_multiple_process(process);
     wait_processes();
-
+    
     printf("[MANAGER %d] Terminating manager program...\n", getpid());
 
     return EXIT_SUCCESS;
@@ -75,7 +77,7 @@ pid_t create_single_process(const char *path) {
             fprintf(stderr, "[MANAGER] Error creating process: %s.\n", strerror(errno));
             exit(EXIT_FAILURE);
         case 0:
-            if (execl(path, FILE_ESTUDIANTES ,NULL) == -1) {
+            if (execl(path, ESTUDIANTES_FILE ,NULL) == -1) {
                 fprintf(stderr, "[MANAGER] Error using execl(): %s.\n",strerror(errno));
                 exit(EXIT_FAILURE);
             }
@@ -102,6 +104,18 @@ void get_str_process_info(enum ProcessClass_T class, char **path) {
     }
 }
 
+void system_log_message(char *message) {
+    FILE *log = create_log_file(LOG_FILE);
+    fputs(message, log);
+    fclose(log);
+}
+
+void wait_one_process() {
+    wait(NULL);
+    system_log_message("************ Log del sistema ************\n");
+    system_log_message("Creación de directorios finalizada.\n");
+}
+
 void wait_processes() {
     int i;
     for (i = 0; i < SIZE; i++) {
@@ -111,15 +125,26 @@ void wait_processes() {
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[MANAGER] Error installing singal handler: %s.\n", strerror(errno));
+        fprintf(stderr, "[MANAGER %d] Error installing singal handler: %s.\n", getpid(),strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
 
 void signal_handler(int signo) {
     generate_log_termination();
-    printf("\n[MANAGER] Program termination (Ctrl + C).\n");
+    printf("\n[MANAGER %d] Program termination (Ctrl + C).\n",getpid());
     exit(EXIT_SUCCESS);
+}
+
+FILE* create_log_file(char *filename) {
+    FILE *log = fopen(filename,"a");
+    
+    if (log == NULL) {
+        fprintf(stderr, "[MANAGER %d] Error creating the system log file.\n", getpid());
+        exit(EXIT_FAILURE);
+    }
+
+    return log;
 }
 
 void generate_log_termination() {
@@ -127,13 +152,9 @@ void generate_log_termination() {
     time_t rawtime;
     struct tm * timeinfo;
 
-    FILE *log = fopen("log.txt","a");
-
-    if (log == NULL) {
-        printf("Unable to create file.\n");
-    }
+    FILE *log = create_log_file(LOG_FILE);
     
-    char message[35] = "program termination (Ctrl + C) ";
+    char message[35] = "Program termination (Ctrl + C) ";
     
     time(&rawtime);
     timeinfo = localtime(&rawtime);

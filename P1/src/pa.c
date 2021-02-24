@@ -8,14 +8,14 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define SIZE 1024
+#include <definitions.h>
 
 void install_signal_handler();
 void signal_handler(int signo);
 void parse_argv(char *argv[], char **filename);
-void create_directories(char filename[]);
 void f_execle( char *const args[]);
 void check_directory(char dir_name[]);
+void create_directories(FILE *file);
 
 int main(int argc, char *argv[]) {
     char *filename;
@@ -23,10 +23,12 @@ int main(int argc, char *argv[]) {
     install_signal_handler();
     parse_argv(argv, &filename);
 
-    create_directories(filename);
+    FILE *file = open_file(filename);
+    create_directories(file);
 
     return EXIT_SUCCESS;
 }
+
 void check_directory(char dir_name[]) {
     DIR* dir = opendir(dir_name);
 
@@ -41,23 +43,14 @@ void check_directory(char dir_name[]) {
     }
 }
 
-void create_directories(char filename[]) {
-    
-    FILE *file;
-    char dir_name[] = "estudiantes";
+void create_directories(FILE *file) {
+    char buffer[BUFFER];
     char dir_complete[40];
-    char buffer[SIZE];
-
+    char dir_name[] = "estudiantes";
+    
     check_directory(dir_name);
 
-    file = fopen(filename, "r");
-
-    if (file == NULL) {
-        fprintf(stderr, "[PA %d] Error opening file '%s': %s\n",getpid(), filename, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-
-    while (fgets(buffer, SIZE, file) != NULL) {
+    while (fgets(buffer, BUFFER, file) != NULL) {
         /*
         strtok(buffer, " ");
         strtok(NULL, " ");

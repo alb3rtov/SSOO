@@ -6,13 +6,19 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <definitions.h>
+
 void install_signal_handler();
 void signal_handler(int signo);
 
 int main(int argc, char *argv[]) {
     install_signal_handler();
     printf("[PB %d]\n", getpid());
-
+    sleep(3);
+    /*
+    get_test_model();
+    copy_test_model();
+    */
     return EXIT_SUCCESS;
 }
 
