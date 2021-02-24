@@ -8,10 +8,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+#define SIZE 1024
+
 void install_signal_handler();
 void signal_handler(int signo);
 void parse_argv(char *argv[], char **filename);
-void read_filename(char filename[]);
+void create_directories(char filename[]);
 void f_execle( char *const args[]);
 void check_directory(char dir_name[]);
 
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]) {
     install_signal_handler();
     parse_argv(argv, &filename);
 
-    read_filename(filename);
+    create_directories(filename);
 
     return EXIT_SUCCESS;
 }
@@ -39,10 +41,18 @@ void check_directory(char dir_name[]) {
     }
 }
 
-void read_filename(char filename[]) {
+void read_filename() {
+
+}
+
+void create_directories(char filename[]) {
+    
     FILE *file;
     char dir_name[] = "estudiantes";
     char dir_complete[40];
+    char buffer[SIZE];
+
+    check_directory(dir_name);
 
     file = fopen(filename, "r");
 
@@ -50,9 +60,20 @@ void read_filename(char filename[]) {
         fprintf(stderr, "[PA %d] Error opening file '%s': %s\n",getpid(), filename, strerror(errno));
         exit(EXIT_FAILURE);
     }
-    
-    check_directory(dir_name);
 
+    while (fgets(buffer, SIZE, file) != NULL) {
+        /*
+        strtok(buffer, " ");
+        strtok(NULL, " ");
+        const char *val3 = strtok(NULL, " ");
+        */
+        const char *dni = strtok(buffer, " ");
+        sprintf(dir_complete,"%s/%s",dir_name, dni);
+        mkdir(dir_complete, 0777);
+    }
+    
+    fclose(file);
+    /*
     char buffer[256];
     while (fgets(buffer, 256 - 1, file)) {
         buffer[strcspn(buffer, " ")] = 0;
@@ -60,7 +81,8 @@ void read_filename(char filename[]) {
         mkdir(dir_complete, 0777);
     }
 
-    fclose(file);
+    fclose(file);*/
+    
 }
 
 void install_signal_handler() {

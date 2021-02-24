@@ -10,6 +10,7 @@
 
 #include <definitions.h>
 
+void create_multiple_process(const char *path[]);
 pid_t  create_single_process();
 void get_str_process_info(enum ProcessClass_T class, char **path);
 void create_process_by_class(enum ProcessClass_T class);
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
     printf("[MANAGER %d] Starting manager program...\n",getpid());
 
     create_process_by_class(PA);
+    create_process_by_class(PB);
 
     printf("[MANAGER %d] Terminating manager program...\n", getpid());
 
@@ -40,7 +42,11 @@ void create_process_by_class(enum ProcessClass_T class) {
 
     printf("[MANAGER %d] Process child with PID %d created\n", getpid(), pid);
     wait(NULL);
-}   
+}
+
+void create_multiple_process(const char *path[]) {
+
+}
 
 pid_t create_single_process(const char *path) {
 
