@@ -21,14 +21,20 @@ pa: $(DIROBJ)pa.o
 pb: $(DIROBJ)pb.o 
 	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
 
+pc: $(DIROBJ)pc.o 
+	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+
+pd: $(DIROBJ)pd.o 
+	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+
 $(DIROBJ)%.o: $(DIRSRC)%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test:
-	./$(DIREXE)manager 3 2 5
+	./$(DIREXE)manager
 
 solution:
-	./$(DIREXE)manager 2 3 4
+	./$(DIREXE)manager
 
 clean : 
 	rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

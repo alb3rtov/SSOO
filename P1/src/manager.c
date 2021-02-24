@@ -10,28 +10,33 @@
 
 #include <definitions.h>
 
-struct TProcess_t *g_process_table;
+/*struct TProcess_t *g_process_table;*/
 
-void init_process_table();
+/*void init_process_table();*/
 pid_t  create_single_process();
-void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class);
-void create_process_by_class(enum ProcessClass_T class, int index_process_table);
+void get_str_process_info(enum ProcessClass_T class, char **path);
+void create_process_by_class(enum ProcessClass_T class);
 
 void install_signal_handler();
 void signal_handler(int signo);
-
+/*
 void wait_processes();
 
 void terminate_processes(void);
 void free_resources();
-
+*/
 void generate_log_termination();
 
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
 
-    printf("[MANAGER] Start program...\n");
+    printf("[MANAGER %d] Starting manager program...\n",getpid());
+
+    create_process_by_class(PA);
+
+    printf("[MANAGER %d] Terminating manager program...\n", getpid());
+/*
     init_process_table();
     create_process_by_class(PA, 0);
 
@@ -39,10 +44,20 @@ int main(int argc, char *argv[]) {
 
     terminate_processes();
     free_resources();
-
+*/
     return EXIT_SUCCESS;
 }
+void create_process_by_class(enum ProcessClass_T class) {
+    char *path = NULL;
+    pid_t pid;
 
+    get_str_process_info(class, &path);
+    pid = create_single_process(path);
+
+    printf("[MANAGER %d] Process child with PID %d created\n", getpid(), pid);
+    wait(NULL);
+}   
+/*
 void create_process_by_class(enum ProcessClass_T class, int index_process_table) {
     
     char *path = NULL, *str_process_class = NULL;
@@ -54,8 +69,8 @@ void create_process_by_class(enum ProcessClass_T class, int index_process_table)
     pid = create_single_process(path, str_process_class);
 
     printf("Process child %s created - PID: %d.\n", str_process_class, pid);
-}
-
+}*/
+/*
 void init_process_table() {
     int i;
 
@@ -65,8 +80,9 @@ void init_process_table() {
         g_process_table[i].pid = 0;
     }
 }
+*/
 
-pid_t create_single_process(const char *path, const char *str_process_class) {
+pid_t create_single_process(const char *path) {
 
     pid_t pid;
 
@@ -74,43 +90,34 @@ pid_t create_single_process(const char *path, const char *str_process_class) {
         case -1:
             fprintf(stderr, "[MANAGER] Error creating process: %s.\n", strerror(errno));
             exit(EXIT_FAILURE);
-            terminate_processes();
-            free_resources();
-            
         case 0:
-            if (execl(path, str_process_class, NULL) == -1) {
+            if (execl(path, "estudiantes_p1.text" ,NULL) == -1) {
                 fprintf(stderr, "[MANAGER] Error using execl(): %s.\n",strerror(errno));
                 exit(EXIT_FAILURE);
-                terminate_processes();
-                free_resources();
             }
     }
 
     return pid;
 }
 
-void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class) {
+void get_str_process_info(enum ProcessClass_T class, char **path) {
     
     switch (class) {
         case PA:
             *path = PA_PATH;
-            *str_process_class = PA_CLASS;
             break;
         case PB:
             *path = PB_PATH;
-            *str_process_class = PB_CLASS;
             break;
         case PC:
             *path = PC_PATH;
-            *str_process_class = PC_CLASS;
             break;    
         case PD:
             *path = PD_PATH;
-            *str_process_class = PD_PATH;
             break;        
     }
 }
-
+/*
 void terminate_processes(void) {
     int i;
 
@@ -123,9 +130,9 @@ void terminate_processes(void) {
         }
     }
 
-}
+}*/
 
-void wait_processes() {
+/*void wait_processes() {
     int i;
     pid_t pid;
 
@@ -140,11 +147,11 @@ void wait_processes() {
 
 void free_resources() {
     free(g_process_table);
-}
+}*/
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[MANAGER] Error installing singal handler: $s.\n", strerror(errno));
+        fprintf(stderr, "[MANAGER] Error installing singal handler: %s.\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -152,8 +159,8 @@ void install_signal_handler() {
 void signal_handler(int signo) {
     generate_log_termination();
     printf("\n[MANAGER] Program termination (Ctrl + C).\n");
-    terminate_processes();
-    free_resources();
+    /*terminate_processes();
+    free_resources();*/
     exit(EXIT_SUCCESS);
 }
 
