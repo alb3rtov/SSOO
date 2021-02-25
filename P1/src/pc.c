@@ -12,7 +12,6 @@ void signal_handler(int signo);
 int main(void) {
     install_signal_handler();
     printf("[PC %d]\n",getpid());
-    sleep(3);
     return 0;
 }
 

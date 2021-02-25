@@ -12,9 +12,9 @@
 
 
 void create_multiple_process(const char process[SIZE]);
-pid_t create_single_process();
+pid_t create_single_process(const char *path, const char *str_process_class);
 
-void get_str_process_info(enum ProcessClass_T class, char **path);
+void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class);
 void create_process_by_class(enum ProcessClass_T class);
 
 void wait_one_process();
@@ -38,7 +38,6 @@ int main(int argc, char *argv[]) {
     create_process_by_class(PA);
     wait_one_process();
 
-    
     create_multiple_process(process);
     wait_processes();
     
@@ -49,18 +48,17 @@ int main(int argc, char *argv[]) {
 
 
 void create_process_by_class(enum ProcessClass_T class) {
-    char *path = NULL;
+    char *path = NULL, *str_process_class = NULL;
     pid_t pid;
 
-    get_str_process_info(class, &path);
-    pid = create_single_process(path);
+    get_str_process_info(class, &path, &str_process_class);
+    pid = create_single_process(path, str_process_class);
 
-    printf("[MANAGER %d] Process child with PID %d created\n", getpid(), pid);
+    printf("[MANAGER %d] Process child %s with PID %d created\n", getpid(), str_process_class, pid);
 
 }
 
 void create_multiple_process(const char process[SIZE]) {
-
     int i;
 
     for (i = 0; i < SIZE; i++) {
@@ -68,17 +66,17 @@ void create_multiple_process(const char process[SIZE]) {
     }
 }
 
-pid_t create_single_process(const char *path) {
+pid_t create_single_process(const char *path, const char *str_process_class) {
 
     pid_t pid;
 
     switch (pid = fork()) {
         case -1:
-            fprintf(stderr, "[MANAGER] Error creating process: %s.\n", strerror(errno));
+            fprintf(stderr, "[MANAGER %d] Error creating process: %s.\n", getpid(), strerror(errno));
             exit(EXIT_FAILURE);
         case 0:
-            if (execl(path, ESTUDIANTES_FILE ,NULL) == -1) {
-                fprintf(stderr, "[MANAGER] Error using execl(): %s.\n",strerror(errno));
+            if (execl(path, str_process_class, NULL) == -1) {
+                fprintf(stderr, "[MANAGER %d] Error using execl(): %s.\n", getpid(),strerror(errno));
                 exit(EXIT_FAILURE);
             }
     }
@@ -86,20 +84,24 @@ pid_t create_single_process(const char *path) {
     return pid;
 }
 
-void get_str_process_info(enum ProcessClass_T class, char **path) {
+void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class) {
     
     switch (class) {
         case PA:
             *path = PA_PATH;
+            *str_process_class = PA_CLASS;
             break;
         case PB:
             *path = PB_PATH;
+            *str_process_class = PB_CLASS;
             break;
         case PC:
             *path = PC_PATH;
+            *str_process_class = PC_CLASS;
             break;    
         case PD:
             *path = PD_PATH;
+            *str_process_class = PD_CLASS;
             break;        
     }
 }

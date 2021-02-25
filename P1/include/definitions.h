@@ -8,9 +8,11 @@
 #define PD_PATH "./exec/pd"
 
 #define ESTUDIANTES_FILE "estudiantes_p1.text"
+#define LOG_FILE "log.txt"
+#define DIR_ESTUDIANTES "estudiantes"
+#define DIR_TEST_MODELS "test_models"
 #define SIZE    2
 #define BUFFER  1024
-#define LOG_FILE "log.txt"
 
 enum ProcessClass_T {PA, PB, PC, PD};
 

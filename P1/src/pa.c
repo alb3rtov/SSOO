@@ -18,12 +18,10 @@ void check_directory(char dir_name[]);
 void create_directories(FILE *file);
 
 int main(int argc, char *argv[]) {
-    char *filename;
 
     install_signal_handler();
-    parse_argv(argv, &filename);
 
-    FILE *file = open_file(filename);
+    FILE *file = open_file(ESTUDIANTES_FILE);
     create_directories(file);
 
     return EXIT_SUCCESS;
@@ -46,9 +44,9 @@ void check_directory(char dir_name[]) {
 void create_directories(FILE *file) {
     char buffer[BUFFER];
     char dir_complete[40];
-    char dir_name[] = "estudiantes";
+    /*char dir_name[] = "estudiantes";*/
     
-    check_directory(dir_name);
+    check_directory(DIR_ESTUDIANTES);
 
     while (fgets(buffer, BUFFER, file) != NULL) {
         /*
@@ -57,7 +55,7 @@ void create_directories(FILE *file) {
         const char *val3 = strtok(NULL, " ");
         */
         const char *dni = strtok(buffer, " ");
-        sprintf(dir_complete,"%s/%s",dir_name, dni);
+        sprintf(dir_complete,"%s/%s",DIR_ESTUDIANTES, dni);
         mkdir(dir_complete, 0777);
     }
     
@@ -75,7 +73,7 @@ void signal_handler(int signo) {
     printf("\n[PA %d] terminated (SIGINT).\n", getpid());
     exit(EXIT_SUCCESS);
 }
-
+/*
 void parse_argv(char *argv[], char **filename) {
     *filename = argv[0];
-}
+}*/
