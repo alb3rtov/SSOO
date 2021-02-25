@@ -12,7 +12,7 @@
 
 void install_signal_handler();
 void signal_handler(int signo);
-void parse_argv(char *argv[], char **filename);
+void parse_argv(char *argv[], int system_log_message_pipe[2]);
 void f_execle( char *const args[]);
 void check_directory(char dir_name[]);
 void create_directories(FILE *file);
@@ -73,7 +73,3 @@ void signal_handler(int signo) {
     printf("\n[PA %d] terminated (SIGINT).\n", getpid());
     exit(EXIT_SUCCESS);
 }
-/*
-void parse_argv(char *argv[], char **filename) {
-    *filename = argv[0];
-}*/

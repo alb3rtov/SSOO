@@ -18,11 +18,16 @@ void copy_test_model(const char *dni, const char *filename_model);
 char* get_filename_test_model(const char *test_model);
 
 int main(int argc, char *argv[]) {
+
+    char message[] = "Copia de modelos de examen, finalizada.\n";
+
     install_signal_handler();
     printf("[PB %d]\n", getpid());
 
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_test_model(file);
+
+    write(atoi(argv[1]), message, strlen(message));
 
     return EXIT_SUCCESS;
 }
@@ -54,7 +59,6 @@ void read_test_model(FILE * file) {
         /*printf("%s: %s -> %s\n", dni, test_model, filename_model);*/
         copy_test_model(dni, filename_model);
     }
-
 }
 
 char* get_filename_test_model(const char *test_model) {

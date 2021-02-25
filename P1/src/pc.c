@@ -9,9 +9,15 @@
 void install_signal_handler();
 void signal_handler(int signo);
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
+    char message[] = "Creación de archivos con nota necesaria para alcanzar la nota de corte, finalizada.\n";
+
     install_signal_handler();
     printf("[PC %d]\n",getpid());
+
+    write(atoi(argv[1]), message, strlen(message));
+
     return 0;
 }
 

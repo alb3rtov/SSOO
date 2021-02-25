@@ -13,6 +13,8 @@
 #define DIR_TEST_MODELS "test_models"
 #define SIZE    2
 #define BUFFER  1024
+#define READ     0
+#define WRITE   1
 
 enum ProcessClass_T {PA, PB, PC, PD};
 

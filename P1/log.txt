@@ -1,2 +1,4 @@
 ************ Log del sistema ************
 Creación de directorios finalizada.
+Creación de archivos con nota necesaria para alcanzar la nota de corte, finalizada.
+
