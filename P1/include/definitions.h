@@ -42,6 +42,6 @@ FILE* open_file(char filename[]) {
     return file;
 }
 
-void send_log_message_to_manager(int wr_system_log_message_pipe, char message[]) {
-    write(wr_system_log_message_pipe, message, strlen(message));
+void send_message_to_manager(int wr_pipe, char message[]) {
+    write(wr_pipe, message, strlen(message));
 }

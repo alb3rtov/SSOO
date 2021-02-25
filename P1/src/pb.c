@@ -13,22 +13,22 @@ void read_test_model(FILE *file);
 char* get_filename_test_model(const char *test_model);
 void copy_test_model(const char *dni, const char *filename_model);
 
-void parse_argv(char *argv[], int *wr_system_log_message_pipe);
+void parse_argv(char *argv[], int *wr_pipe);
 void install_signal_handler();
 void signal_handler(int signo);
 
 int main(int argc, char *argv[]) {
 
-    int wr_system_log_message_pipe;
+    int wr_pipe;
     char message[] = "Copia de modelos de examen, finalizada.\n";
 
     install_signal_handler();
-    parse_argv(argv, &wr_system_log_message_pipe);
-    printf("[PB %d]\n", getpid());
+    parse_argv(argv, &wr_pipe);
     /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_test_model(file);
-    send_log_message_to_manager(wr_system_log_message_pipe, message);
+
+    send_message_to_manager(wr_pipe, message);
 
     return EXIT_SUCCESS;
 }
@@ -40,7 +40,6 @@ void read_test_model(FILE *file) {
         const char *dni = strtok(buffer, " ");
         const char *test_model = strtok(NULL, " ");
         char *filename_model = get_filename_test_model(test_model);
-        /*printf("%s: %s -> %s\n", dni, test_model, filename_model);*/
         copy_test_model(dni, filename_model);
     }
 }
@@ -77,18 +76,18 @@ void copy_test_model(const char *dni, const char *filename_model) {
     }
 }
 
-void parse_argv(char *argv[], int *wr_system_log_message_pipe) {
-    *wr_system_log_message_pipe = atoi(argv[1]);
+void parse_argv(char *argv[], int *wr_pipe) {
+    *wr_pipe = atoi(argv[1]);
 }
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[PA %d] Error installing singal handler: %s.\n", getpid(), strerror(errno));
+        fprintf(stderr, "[PB %d] Error installing singal handler: %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
 
 void signal_handler(int signo) {
-    printf("\n[PA %d] terminated (SIGINT).\n", getpid());
+    printf("\n[PB %d] terminated (SIGINT).\n", getpid());
     exit(EXIT_SUCCESS);
 }

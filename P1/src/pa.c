@@ -20,7 +20,7 @@ void create_directories(FILE *file);
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
-
+    /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
     create_directories(file);
 
@@ -44,16 +44,10 @@ void check_directory(char dir_name[]) {
 void create_directories(FILE *file) {
     char buffer[BUFFER];
     char dir_complete[40];
-    /*char dir_name[] = "estudiantes";*/
     
     check_directory(DIR_ESTUDIANTES);
 
     while (fgets(buffer, BUFFER, file) != NULL) {
-        /*
-        strtok(buffer, " ");
-        strtok(NULL, " ");
-        const char *val3 = strtok(NULL, " ");
-        */
         const char *dni = strtok(buffer, " ");
         sprintf(dir_complete,"%s/%s",DIR_ESTUDIANTES, dni);
         mkdir(dir_complete, 0777);
