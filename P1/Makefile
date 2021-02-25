@@ -7,7 +7,7 @@ CFLAGS := -I$(DIRHEA) -c -Wall -ansi
 LDLIBS := -lpthread -lrt
 CC := gcc
 
-all : dirs manager pa pb pc
+all : dirs manager pa pb pc pd
 
 dirs:
 	mkdir -p $(DIROBJ) $(DIREXE)

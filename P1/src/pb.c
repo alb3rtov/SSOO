@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
 
     int wr_pipe;
     char message[] = "Copia de modelos de examen, finalizada.\n";
-
+    
     install_signal_handler();
     parse_argv(argv, &wr_pipe);
-    /*sleep(5);*/
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_test_model(file);
 
@@ -71,7 +71,7 @@ void copy_test_model(const char *dni, const char *filename_model) {
     strcat(command, destination_path);  
 
     if (system(command) == -1) {
-        fprintf(stderr, "[PB %d] Error using execl(): %s.\n", getpid(), strerror(errno));
+        fprintf(stderr, "[PB %d] Error using system(): %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -82,7 +82,7 @@ void parse_argv(char *argv[], int *wr_pipe) {
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[PB %d] Error installing singal handler: %s.\n", getpid(), strerror(errno));
+        fprintf(stderr, "[PB %d] Error installing signal handler: %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
 }

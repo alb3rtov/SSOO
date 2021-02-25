@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     install_signal_handler();
     parse_argv(argv, &wr_pipe);
-    /*sleep(5);*/
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     average_grade = read_grade(file);
     send_message_to_manager(wr_pipe, message);
@@ -80,7 +80,7 @@ void parse_argv(char *argv[], int *wr_pipe) {
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[PC %d] Error installing singal handler: %s.\n", getpid(), strerror(errno));
+        fprintf(stderr, "[PC %d] Error installing signal handler: %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
 }

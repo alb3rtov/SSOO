@@ -136,25 +136,23 @@ void wait_processes(int pipecp[2]) {
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[MANAGER %d] Error installing singal handler: %s.\n", getpid(),strerror(errno));
+        fprintf(stderr, "[MANAGER %d] Error installing signal handler: %s.\n", getpid(),strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
 
 void signal_handler(int signo) {
     generate_log_termination();
-    /*create_process_by_class(PD, NULL);*/
+    create_process_by_class(PD, NULL);
     printf("\n[MANAGER %d] Program termination (Ctrl + C).\n",getpid());
     exit(EXIT_SUCCESS);
 }
 
 void generate_log_termination() {
-    
     time_t rawtime;
     struct tm * timeinfo;
 
     FILE *log = create_file(LOG_FILE);
-    
     char message[35] = "Program termination (Ctrl + C) ";
     
     time(&rawtime);
@@ -162,7 +160,6 @@ void generate_log_termination() {
     char *str_time = asctime(timeinfo);
 
     strcat(message, str_time);
-
     fputs(message, log);
     fclose(log);
 }

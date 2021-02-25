@@ -20,7 +20,7 @@ void create_directories(FILE *file);
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
-    /*sleep(5);*/
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     create_directories(file);
 
@@ -58,7 +58,7 @@ void create_directories(FILE *file) {
 
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        fprintf(stderr, "[PA %d] Error installing singal handler: %s.\n", getpid(), strerror(errno));
+        fprintf(stderr, "[PA %d] Error installing signal handler: %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
