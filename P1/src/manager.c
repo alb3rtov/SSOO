@@ -23,7 +23,7 @@ void install_signal_handler();
 void signal_handler(int signo);
 
 void system_log_message(char *message);
-FILE* create_log_file(char *filename);
+/*FILE* create_log_file(char *filename);*/
 void generate_log_termination();
 
 int main(int argc, char *argv[]) {
@@ -112,20 +112,20 @@ void get_str_process_info(enum ProcessClass_T class, char **path, char **str_pro
             break;        
     }
 }
-
-FILE* create_log_file(char *filename) {
-    FILE *log = fopen(filename,"a");
+/*
+FILE* create_file(char *filename) {
+    FILE *file = fopen(filename,"a");
     
-    if (log == NULL) {
+    if (file == NULL) {
         fprintf(stderr, "[MANAGER %d] Error creating the system log file.\n", getpid());
         exit(EXIT_FAILURE);
     }
 
-    return log;
-}
+    return file;
+}*/
 
 void system_log_message(char *message) {
-    FILE *log = create_log_file(LOG_FILE);
+    FILE *log = create_file(LOG_FILE);
     fputs(message, log);
     fclose(log);
 }
@@ -138,11 +138,10 @@ void wait_one_process() {
 void wait_processes(int system_log_message_pipe[2]) {
     int i;
     
-
-    for (i = 0; i < 1; i++) {
-        char buffer[300];
+    for (i = 0; i < SIZE; i++) {
+        char buffer[300] = "";
         read(system_log_message_pipe[READ], buffer, sizeof(buffer));
-        printf("%s",buffer);
+        /*printf("%d: %s",i, buffer);*/
         system_log_message(buffer);
     }
 }
@@ -165,7 +164,7 @@ void generate_log_termination() {
     time_t rawtime;
     struct tm * timeinfo;
 
-    FILE *log = create_log_file(LOG_FILE);
+    FILE *log = create_file(LOG_FILE);
     
     char message[35] = "Program termination (Ctrl + C) ";
     

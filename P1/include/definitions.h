@@ -9,6 +9,7 @@
 
 #define ESTUDIANTES_FILE "estudiantes_p1.text"
 #define LOG_FILE "log.txt"
+#define GRADE_FILE "min_grade.txt"
 #define DIR_ESTUDIANTES "estudiantes"
 #define DIR_TEST_MODELS "test_models"
 #define SIZE    2
@@ -18,17 +19,29 @@
 
 enum ProcessClass_T {PA, PB, PC, PD};
 
-FILE* open_file(char filename[]) {
+FILE* create_file(char *filename) {
+    FILE *file = fopen(filename,"a");
     
-    FILE *file;
-
-    file = fopen(filename, "r");
-
     if (file == NULL) {
-        fprintf(stderr, "[PA %d] Error opening file '%s': %s\n",getpid(), filename, strerror(errno));
+        fprintf(stderr, "[%d] Error creating file.\n", getpid());
         exit(EXIT_FAILURE);
     }
 
     return file;
+}
 
+FILE* open_file(char filename[]) {
+    FILE *file;
+    file = fopen(filename, "r");
+
+    if (file == NULL) {
+        fprintf(stderr, "[%d] Error opening file '%s': %s\n",getpid(), filename, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    return file;
+}
+
+void send_log_message_to_manager(int wr_system_log_message_pipe, char message[]) {
+    write(wr_system_log_message_pipe, message, strlen(message));
 }

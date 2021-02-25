@@ -7,49 +7,33 @@
 #include <string.h>
 #include <unistd.h>
 
-
 #include <definitions.h>
 
+void read_test_model(FILE *file);
+char* get_filename_test_model(const char *test_model);
+void copy_test_model(const char *dni, const char *filename_model);
+
+void parse_argv(char *argv[], int *wr_system_log_message_pipe);
 void install_signal_handler();
 void signal_handler(int signo);
 
-void read_test_model(FILE *file);
-void copy_test_model(const char *dni, const char *filename_model);
-char* get_filename_test_model(const char *test_model);
-
 int main(int argc, char *argv[]) {
 
+    int wr_system_log_message_pipe;
     char message[] = "Copia de modelos de examen, finalizada.\n";
 
     install_signal_handler();
+    parse_argv(argv, &wr_system_log_message_pipe);
     printf("[PB %d]\n", getpid());
-
+    /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_test_model(file);
-
-    write(atoi(argv[1]), message, strlen(message));
+    send_log_message_to_manager(wr_system_log_message_pipe, message);
 
     return EXIT_SUCCESS;
 }
 
-void copy_test_model(const char *dni, const char *filename_model) {
-    char destination_path[40];
-    char source_path[40];
-    char command[] = "cp";
-
-    sprintf(source_path," %s/%s",DIR_TEST_MODELS,filename_model);
-    sprintf(destination_path," %s/%s", DIR_ESTUDIANTES, dni);
-    
-    strcat(command, source_path);
-    strcat(command, destination_path);  
-
-    if (system(command) == -1) {
-        fprintf(stderr, "[PB %d] Error using execl(): %s.\n", getpid(), strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-}
-
-void read_test_model(FILE * file) {
+void read_test_model(FILE *file) {
     char buffer[BUFFER];
     
     while (fgets(buffer, BUFFER, file) != NULL) { 
@@ -74,6 +58,27 @@ char* get_filename_test_model(const char *test_model) {
     }
 
     return filename_model;
+}
+
+void copy_test_model(const char *dni, const char *filename_model) {
+    char destination_path[40];
+    char source_path[40];
+    char command[] = "cp";
+
+    sprintf(source_path," %s/%s",DIR_TEST_MODELS,filename_model);
+    sprintf(destination_path," %s/%s", DIR_ESTUDIANTES, dni);
+    
+    strcat(command, source_path);
+    strcat(command, destination_path);  
+
+    if (system(command) == -1) {
+        fprintf(stderr, "[PB %d] Error using execl(): %s.\n", getpid(), strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+}
+
+void parse_argv(char *argv[], int *wr_system_log_message_pipe) {
+    *wr_system_log_message_pipe = atoi(argv[1]);
 }
 
 void install_signal_handler() {
