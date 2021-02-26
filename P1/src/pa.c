@@ -10,8 +10,9 @@
 
 #include <definitions.h>
 
+void create_main_directory(char dir_name[]);
 void create_directories(FILE *file);
-void check_directory(char dir_name[]);
+/*void check_directory(char dir_name[]);*/
 
 void parse_argv(char *argv[], int system_log_message_pipe[2]);
 void install_signal_handler();
@@ -20,13 +21,21 @@ void signal_handler(int signo);
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
-    /*sleep(5);*/
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     create_directories(file);
 
     return EXIT_SUCCESS;
 }
 
+void create_main_directory(char dir_name[]) {
+
+    if (check_directory(dir_name) != 0) {
+        mkdir(dir_name, 0777);
+    } 
+}
+
+/*
 void check_directory(char dir_name[]) {
     DIR* dir = opendir(dir_name);
 
@@ -39,13 +48,13 @@ void check_directory(char dir_name[]) {
         fprintf(stderr, "[PA %d] Error creating the main directory: %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
-}
+}*/
 
 void create_directories(FILE *file) {
     char buffer[BUFFER];
     char dir_complete[40];
     
-    check_directory(DIR_ESTUDIANTES);
+    create_main_directory(DIR_ESTUDIANTES);
 
     while (fgets(buffer, BUFFER, file) != NULL) {
         const char *dni = strtok(buffer, " ");

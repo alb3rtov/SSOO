@@ -18,12 +18,17 @@ int main(int argc, char *argv[]) {
 }
 
 void delete_directory() {
-    char command[] = "rm -r ";
-    
-    strcat(command, DIR_ESTUDIANTES);
-    
-    if (system(command) == -1) {
-        fprintf(stderr, "[PD %d] Error using system(): %s.\n", getpid(), strerror(errno));
-        exit(EXIT_FAILURE);
+
+    if (check_directory(DIR_ESTUDIANTES) == 0) {
+        char command[] = "rm -r ";
+        strcat(command, DIR_ESTUDIANTES);
+        
+        if (system(command) == -1) {
+            fprintf(stderr, "[PD %d] Error using system(): %s.\n", getpid(), strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+    } else {
+        fprintf(stderr, "[PD %d] Directory %s doesn't exists.\n", getpid(), DIR_ESTUDIANTES);
     }
 }

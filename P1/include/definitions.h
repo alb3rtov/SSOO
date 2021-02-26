@@ -1,3 +1,5 @@
+#include <dirent.h>
+
 #define PA_CLASS "PA"
 #define PA_PATH "./exec/pa"
 #define PB_CLASS "PB"
@@ -44,4 +46,18 @@ FILE* open_file(char filename[]) {
 
 void send_message_to_manager(int wr_pipe, char message[]) {
     write(wr_pipe, message, strlen(message));
+}
+
+int check_directory(char dir_name[]) {
+    int exists;
+    DIR* dir = opendir(dir_name);
+
+    if (dir) {
+        exists = 0;
+        closedir(dir);
+    } else if(ENOENT == errno) {
+        exists = -1;
+    }
+    
+    return exists;
 }

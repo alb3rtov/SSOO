@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     install_signal_handler();
     parse_argv(argv, &wr_system_log_pipe, &wr_average_grade_pipe);
-    /*sleep(5);*/
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_grade(file, a_grade);
     
@@ -52,10 +52,10 @@ void read_grade(FILE *file, char *a_grade) {
         sum_grades += atoi(grade);
     }
 
+    fclose(file);
+    
     average_grade = (sum_grades/counter);
     sprintf(a_grade, "La nota media de la clase es: %.2f\n", average_grade);
-
-    /*return a_grade;*/
 }
 
 int calculate_minimum_grade(const char *grade) {
