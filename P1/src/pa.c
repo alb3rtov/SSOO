@@ -10,17 +10,17 @@
 
 #include <definitions.h>
 
+void create_directories(FILE *file);
+void check_directory(char dir_name[]);
+
+void parse_argv(char *argv[], int system_log_message_pipe[2]);
 void install_signal_handler();
 void signal_handler(int signo);
-void parse_argv(char *argv[], int system_log_message_pipe[2]);
-void f_execle( char *const args[]);
-void check_directory(char dir_name[]);
-void create_directories(FILE *file);
 
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
-    sleep(5);
+    /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
     create_directories(file);
 

@@ -13,25 +13,29 @@ int calculate_minimum_grade(const char *grade);
 void generate_file_grade(const char *dni, int minimum_grade);
 void write_grades(FILE *file, int minimum_grade);
 
-void parse_argv(char *argv[], int *wr_pipe);
+void parse_argv(char *argv[], int *wr_pipe, int *wr_average_grade_pipe);
 void install_signal_handler();
 void signal_handler(int signo);
 
 int main(int argc, char *argv[]) {
 
-    int wr_pipe;
+    int wr_system_log_pipe;
+    int wr_average_grade_pipe;
     float average_grade;
     char a_grade[80];
     char message[] = "Creación de archivos con nota necesaria para alcanzar la nota de corte, finalizada.\n";
 
     install_signal_handler();
-    parse_argv(argv, &wr_pipe);
-    sleep(5);
+    parse_argv(argv, &wr_system_log_pipe, &wr_average_grade_pipe);
+    /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
     average_grade = read_grade(file);
-    send_message_to_manager(wr_pipe, message);
-    sprintf(a_grade, "La nota media de la clase es: %.2f\n",average_grade);
-    send_message_to_manager(wr_pipe, a_grade);
+    
+    send_message_to_manager(wr_system_log_pipe, message);
+
+    sprintf(a_grade, "La nota media de la clase es: %.2f\n", average_grade);
+    send_message_to_manager(wr_average_grade_pipe, a_grade);
+
     return EXIT_SUCCESS;
 }
 
@@ -69,13 +73,13 @@ void generate_file_grade(const char *dni, int minimum_grade) {
     char destination_path[40];
 
     sprintf(destination_path,"%s/%s/%s", DIR_ESTUDIANTES, dni, GRADE_FILE);
-    /*printf("%s\n",destination_path);*/
     FILE *file = create_file(destination_path);
     write_grades(file, minimum_grade);
 }
 
-void parse_argv(char *argv[], int *wr_pipe) {
-    *wr_pipe = atoi(argv[1]);
+void parse_argv(char *argv[], int *wr_system_log_pipe, int *wr_average_grade_pipe) {
+    *wr_system_log_pipe = atoi(argv[1]);
+    *wr_average_grade_pipe = atoi(argv[2]);
 }
 
 void install_signal_handler() {
