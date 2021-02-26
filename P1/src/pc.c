@@ -8,7 +8,7 @@
 
 #include <definitions.h>
 
-float read_grade(FILE *file);
+void read_grade(FILE *file, char *a_grade);
 int calculate_minimum_grade(const char *grade);
 void generate_file_grade(const char *dni, int minimum_grade);
 void write_grades(FILE *file, int minimum_grade);
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     int wr_system_log_pipe;
     int wr_average_grade_pipe;
-    float average_grade;
+
     char a_grade[80];
     char message[] = "Creación de archivos con nota necesaria para alcanzar la nota de corte, finalizada.\n";
 
@@ -29,19 +29,18 @@ int main(int argc, char *argv[]) {
     parse_argv(argv, &wr_system_log_pipe, &wr_average_grade_pipe);
     /*sleep(5);*/
     FILE *file = open_file(ESTUDIANTES_FILE);
-    average_grade = read_grade(file);
+    read_grade(file, a_grade);
     
     send_message_to_manager(wr_system_log_pipe, message);
-
-    sprintf(a_grade, "La nota media de la clase es: %.2f\n", average_grade);
     send_message_to_manager(wr_average_grade_pipe, a_grade);
 
     return EXIT_SUCCESS;
 }
 
-float read_grade(FILE *file) {
+void read_grade(FILE *file, char *a_grade) {
     char buffer[BUFFER];
     int counter = 0, sum_grades = 0;
+    float average_grade;
 
     while (fgets(buffer, BUFFER, file) != NULL) { 
         const char *dni = strtok(buffer, " ");
@@ -53,7 +52,10 @@ float read_grade(FILE *file) {
         sum_grades += atoi(grade);
     }
 
-    return (sum_grades/counter);
+    average_grade = (sum_grades/counter);
+    sprintf(a_grade, "La nota media de la clase es: %.2f\n", average_grade);
+
+    /*return a_grade;*/
 }
 
 int calculate_minimum_grade(const char *grade) {

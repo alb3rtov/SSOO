@@ -133,7 +133,7 @@ void wait_processes(int system_log_pipe[2], int average_grade_pipe[2]) {
     int i;
     char buffer_grade[300];
 
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < SIZE; i++) {
         char buffer[300] = "";
         read(system_log_pipe[READ], buffer, sizeof(buffer));
         system_log_message(buffer);
@@ -142,7 +142,6 @@ void wait_processes(int system_log_pipe[2], int average_grade_pipe[2]) {
     read(average_grade_pipe[READ], buffer_grade, sizeof(buffer_grade));
     system_log_message(buffer_grade);
     system_log_message("FIN DE PROGRAMA.\n");
-
 }
 
 void install_signal_handler() {
