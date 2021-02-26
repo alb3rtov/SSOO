@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     
     install_signal_handler();
     parse_argv(argv, &wr_pipe);
-    sleep(5);
+        sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE);
     read_test_model(file);
 

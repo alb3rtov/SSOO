@@ -12,7 +12,6 @@
 
 void create_main_directory(char dir_name[]);
 void create_directories(FILE *file);
-/*void check_directory(char dir_name[]);*/
 
 void parse_argv(char *argv[], int system_log_message_pipe[2]);
 void install_signal_handler();
@@ -29,26 +28,10 @@ int main(int argc, char *argv[]) {
 }
 
 void create_main_directory(char dir_name[]) {
-
     if (check_directory(dir_name) != 0) {
         mkdir(dir_name, 0777);
     } 
 }
-
-/*
-void check_directory(char dir_name[]) {
-    DIR* dir = opendir(dir_name);
-
-    if (dir) {
-        closedir(dir);
-    } else if(ENOENT == errno) {
-        mkdir(dir_name, 0777);
-        closedir(dir);
-    } else {
-        fprintf(stderr, "[PA %d] Error creating the main directory: %s.\n", getpid(), strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-}*/
 
 void create_directories(FILE *file) {
     char buffer[BUFFER];

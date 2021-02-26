@@ -14,7 +14,7 @@
 #define GRADE_FILE "min_grade.txt"
 #define DIR_ESTUDIANTES "estudiantes"
 #define DIR_TEST_MODELS "test_models"
-#define SIZE    2
+#define NUM_P_PBPC  2
 #define BUFFER  1024
 #define READ     0
 #define WRITE   1
@@ -45,7 +45,7 @@ FILE* open_file(char filename[]) {
 }
 
 void send_message_to_manager(int wr_pipe, char message[]) {
-    write(wr_pipe, message, strlen(message));
+    write(wr_pipe, message, strlen(message)+1);
 }
 
 int check_directory(char dir_name[]) {

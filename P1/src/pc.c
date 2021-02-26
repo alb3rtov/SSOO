@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
 
     int wr_system_log_pipe;
     int wr_average_grade_pipe;
-
     char a_grade[80];
     char message[] = "Creación de archivos con nota necesaria para alcanzar la nota de corte, finalizada.\n";
 
@@ -33,7 +32,6 @@ int main(int argc, char *argv[]) {
     
     send_message_to_manager(wr_system_log_pipe, message);
     send_message_to_manager(wr_average_grade_pipe, a_grade);
-
     return EXIT_SUCCESS;
 }
 
