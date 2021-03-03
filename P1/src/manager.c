@@ -15,6 +15,8 @@
 int g_n_processes = 0;
 pid_t g_pid_processes[N_TOTAL_PROCESS];
 
+void execute_backup_process();
+
 void create_multiple_process(const char process[NUM_P_PBPC], char wr_system_log_pipe[256], char wr_average_grade_pipe[256]);
 pid_t create_single_process(const char *path, const char *str_process_class, char wr_system_log_pipe[256], char wr_average_grade_pipe[256]);
 
@@ -53,6 +55,8 @@ int main(int argc, char *argv[]) {
 
     system_log_message("************ Log del sistema ************\n");
 
+    execute_backup_process();
+
     create_process_by_class(PA, NULL, NULL);
     wait_one_process();
 
@@ -62,6 +66,24 @@ int main(int argc, char *argv[]) {
     printf("[MANAGER %d] Terminating manager program...\n", getpid());
 
     return EXIT_SUCCESS;
+}
+
+void execute_backup_process() {
+    char *bg = "&";
+    char command[20];
+
+    sprintf(command,"%s %s", PBK_PATH, bg);
+
+    if (system(command) == -1) {
+        fprintf(stderr, "[MANAGER %d] Error using system(): %s.\n", getpid(), strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    /*
+    if (execl(PBK_PATH, "BK", NULL) == -1) {
+        fprintf(stderr, "[MANAGER %d] Error using execl(): %s.\n", getpid(), strerror(errno));
+        exit(EXIT_FAILURE);
+    }*/
+
 }
 
 void create_process_by_class(enum ProcessClass_T class, char wr_system_log_pipe[256], char wr_average_grade_pipe[256]) {

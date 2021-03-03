@@ -8,12 +8,16 @@
 #define PC_PATH "./exec/pc"
 #define PD_CLASS "PD"
 #define PD_PATH "./exec/pd"
+#define PBK_PATH "./exec/backup"
 
 #define ESTUDIANTES_FILE "estudiantes_p1.text"
 #define LOG_FILE "log.txt"
 #define GRADE_FILE "min_grade.txt"
+
 #define DIR_ESTUDIANTES "estudiantes"
 #define DIR_TEST_MODELS "test_models"
+#define DIR_BACK_UP "backup"
+
 #define N_TOTAL_PROCESS 4
 #define NUM_P_PBPC  2
 #define BUFFER  1024
