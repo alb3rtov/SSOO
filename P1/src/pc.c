@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     install_signal_handler();
     parse_argv(argv, &wr_system_log_pipe, &wr_average_grade_pipe);
     sleep(5);
-    FILE *file = open_file(ESTUDIANTES_FILE);
+    FILE *file = open_file(ESTUDIANTES_FILE, "r");
     read_grade(file, a_grade);
     
     send_message_to_manager(wr_system_log_pipe, message);
@@ -73,7 +73,7 @@ void generate_file_grade(const char *dni, int minimum_grade) {
     char destination_path[40];
 
     sprintf(destination_path,"%s/%s/%s", DIR_ESTUDIANTES, dni, GRADE_FILE);
-    FILE *file = create_file(destination_path);
+    FILE *file = open_file(destination_path, "a");
     write_grades(file, minimum_grade);
 }
 

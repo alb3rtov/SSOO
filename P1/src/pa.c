@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     install_signal_handler();
     sleep(5);
-    FILE *file = open_file(ESTUDIANTES_FILE);
+    FILE *file = open_file(ESTUDIANTES_FILE, "r");
     create_directories(file);
 
     return EXIT_SUCCESS;

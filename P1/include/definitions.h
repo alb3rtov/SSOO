@@ -14,6 +14,7 @@
 #define GRADE_FILE "min_grade.txt"
 #define DIR_ESTUDIANTES "estudiantes"
 #define DIR_TEST_MODELS "test_models"
+#define N_TOTAL_PROCESS 4
 #define NUM_P_PBPC  2
 #define BUFFER  1024
 #define READ     0
@@ -21,20 +22,9 @@
 
 enum ProcessClass_T {PA, PB, PC, PD};
 
-FILE* create_file(char *filename) {
-    FILE *file = fopen(filename,"a");
-    
-    if (file == NULL) {
-        fprintf(stderr, "[%d] Error creating file.\n", getpid());
-        exit(EXIT_FAILURE);
-    }
-
-    return file;
-}
-
-FILE* open_file(char filename[]) {
+FILE* open_file(char filename[], char *permissions) {
     FILE *file;
-    file = fopen(filename, "r");
+    file = fopen(filename, permissions);
 
     if (file == NULL) {
         fprintf(stderr, "[%d] Error opening file '%s': %s\n",getpid(), filename, strerror(errno));

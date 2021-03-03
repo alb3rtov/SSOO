@@ -13,7 +13,7 @@
 #include <definitions.h>
 
 int g_n_processes = 0;
-pid_t g_pid_processes[4];
+pid_t g_pid_processes[N_TOTAL_PROCESS];
 
 void create_multiple_process(const char process[NUM_P_PBPC], char wr_system_log_pipe[256], char wr_average_grade_pipe[256]);
 pid_t create_single_process(const char *path, const char *str_process_class, char wr_system_log_pipe[256], char wr_average_grade_pipe[256]);
@@ -124,7 +124,7 @@ void get_str_process_info(enum ProcessClass_T class, char **path, char **str_pro
 }
 
 void system_log_message(char *message) {
-    FILE *log = create_file(LOG_FILE);
+    FILE *log = open_file(LOG_FILE, "a");
     fputs(message, log);
     fclose(log);
 }
