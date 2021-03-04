@@ -9,6 +9,11 @@ https://github.com/alb3rtov/SSOO
 - src: Contains the source C code of each process.
 - test_models: Contains three test models pdf files.
 - estudiantes: It is created during the execution.
+- backup: Contains a backup of estudiantes directory and log file
+
+## Files
+- log.txt: Contains log messages of each process
+- estudiantes_p1.text: Contains registers of each student (dni, test model and grade)
 
 ## Compile
 To compile you have to use Makefile and type `make`
