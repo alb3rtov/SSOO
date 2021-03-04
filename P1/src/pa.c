@@ -1,3 +1,11 @@
+/************************************************************
+ * Project          : Práctica 1 de Sistemas Operativos II
+ * Program name     : pa.c
+ * Author           : Alberto Vázquez Martínez
+ * Date created     : 17/02/2021
+ * Purpose          : Create a directory for each student
+ ***********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -8,7 +16,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include <definitions.h>
+#include <files.h>
 
 void create_main_directory(char dir_name[]);
 void create_directories(FILE *file);
@@ -17,6 +25,7 @@ void parse_argv(char *argv[], int system_log_message_pipe[2]);
 void install_signal_handler();
 void signal_handler(int signo);
 
+/******************* Main function *******************/
 int main(int argc, char *argv[]) {
 
     install_signal_handler();
@@ -27,12 +36,14 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+/******************* Create the directory ESTUDIANTES *******************/
 void create_main_directory(char dir_name[]) {
     if (check_directory(dir_name) != 0) {
         mkdir(dir_name, 0777);
     } 
 }
 
+/******************* Create directory of each student *******************/
 void create_directories(FILE *file) {
     char buffer[BUFFER];
     char dir_complete[40];
@@ -48,6 +59,7 @@ void create_directories(FILE *file) {
     fclose(file);
 }
 
+/******************* Install a signal handler for CTRL+C signal *******************/
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
         fprintf(stderr, "[PA %d] Error installing signal handler: %s.\n", getpid(), strerror(errno));

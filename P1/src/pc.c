@@ -1,3 +1,13 @@
+/************************************************************
+ * Project          : Práctica 1 de Sistemas Operativos II
+ * Program name     : pc.c
+ * Author           : Alberto Vázquez Martínez
+ * Date created     : 17/02/2021
+ * Purpose          : Calculate the minimum grade of each 
+ *                    student to pass and calculate the
+ *                    average grade of the class
+ ***********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -7,6 +17,7 @@
 #include <string.h>
 
 #include <definitions.h>
+#include <files.h>
 
 void read_grade(FILE *file, char *a_grade);
 int calculate_minimum_grade(const char *grade);
@@ -17,6 +28,7 @@ void parse_argv(char *argv[], int *wr_pipe, int *wr_average_grade_pipe);
 void install_signal_handler();
 void signal_handler(int signo);
 
+/******************* Main function *******************/
 int main(int argc, char *argv[]) {
 
     int wr_system_log_pipe;
@@ -35,6 +47,7 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+/******************* Read grade of each student from estudiantes file *******************/
 void read_grade(FILE *file, char *a_grade) {
     char buffer[BUFFER];
     int counter = 0, sum_grades = 0;
@@ -56,10 +69,12 @@ void read_grade(FILE *file, char *a_grade) {
     sprintf(a_grade, "La nota media de la clase es: %.2f\n", average_grade);
 }
 
+/******************* Calculate the minimum grade to pass *******************/
 int calculate_minimum_grade(const char *grade) {
     return (10 - atoi(grade));
 }
 
+/******************* Write each minimum grade into each student file *******************/
 void write_grades(FILE *file, int minimum_grade) {
     char message[] = "La nota que debes obtener en este nuevo examen para superar la prueba es ";
     char m_grade[10];
@@ -69,6 +84,7 @@ void write_grades(FILE *file, int minimum_grade) {
     fclose(file);
 }
 
+/******************* Generate each student minimum grade file *******************/
 void generate_file_grade(const char *dni, int minimum_grade) {
     char destination_path[40];
 

@@ -1,3 +1,13 @@
+/************************************************************
+ * Project          : Práctica 1 de Sistemas Operativos II
+ * Program name     : pb.c
+ * Author           : Alberto Vázquez Martínez
+ * Date created     : 17/02/2021
+ * Purpose          : Read the test model of each student and
+ *                    copy to their directory
+ ***********************************************************/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -8,6 +18,7 @@
 #include <unistd.h>
 
 #include <definitions.h>
+#include <files.h>
 
 void read_test_model(FILE *file);
 char* get_filename_test_model(const char *test_model);
@@ -17,6 +28,7 @@ void parse_argv(char *argv[], int *wr_pipe);
 void install_signal_handler();
 void signal_handler(int signo);
 
+/******************* Main function *******************/
 int main(int argc, char *argv[]) {
 
     int wr_pipe;
@@ -24,7 +36,7 @@ int main(int argc, char *argv[]) {
     
     install_signal_handler();
     parse_argv(argv, &wr_pipe);
-        sleep(5);
+    sleep(5);
     FILE *file = open_file(ESTUDIANTES_FILE, "r");
     read_test_model(file);
 
@@ -33,6 +45,7 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+/******************* Read estudiantes file and split in dni and test model *******************/
 void read_test_model(FILE *file) {
     char buffer[BUFFER];
     
@@ -46,6 +59,7 @@ void read_test_model(FILE *file) {
     fclose(file);
 }
 
+/******************* Get the name pdf model of test *******************/
 char* get_filename_test_model(const char *test_model) {
 
     char *filename_model = "";
@@ -61,6 +75,7 @@ char* get_filename_test_model(const char *test_model) {
     return filename_model;
 }
 
+/******************* Copy into the student directory the pdf test model file *******************/
 void copy_test_model(const char *dni, const char *filename_model) {
     char destination_path[40];
     char source_path[40];

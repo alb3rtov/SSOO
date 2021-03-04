@@ -1,3 +1,12 @@
+/************************************************************
+ * Project          : Práctica 1 de Sistemas Operativos II
+ * Program name     : pd.c
+ * Author           : Alberto Vázquez Martínez
+ * Date created     : 17/02/2021
+ * Purpose          : Delete estudiantes directory if a 
+ *                    SIGINT signal happens (Ctrl + C)
+ ***********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -7,16 +16,18 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <definitions.h>
+#include <files.h>
 
 void delete_directory();
 
+/******************* Main function *******************/
 int main(int argc, char *argv[]) {
 
     delete_directory();
     return EXIT_SUCCESS;
 }
 
+/******************* Delete estudiantes directory if exists *******************/
 void delete_directory() {
 
     if (check_directory(DIR_ESTUDIANTES) == 0) {

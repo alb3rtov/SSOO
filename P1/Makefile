@@ -33,9 +33,6 @@ backup: $(DIROBJ)backup.o
 $(DIROBJ)%.o: $(DIRSRC)%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-test:
-	./$(DIREXE)manager
-
 solution:
 	./$(DIREXE)manager
 

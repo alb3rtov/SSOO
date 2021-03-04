@@ -1,3 +1,12 @@
+/************************************************************
+ * Project          : Práctica 1 de Sistemas Operativos II
+ * Program name     : manager.c
+ * Author           : Alberto Vázquez Martínez
+ * Date created     : 17/02/2021
+ * Purpose          : Creation and management of processes
+ *                    to perform concurrent tasks
+ ***********************************************************/
+
 #define _POSIX_SOURCE
 
 #include <stdio.h>
@@ -11,9 +20,10 @@
 #include <time.h>
 
 #include <definitions.h>
+#include <files.h>
 
-int g_n_processes = 0;
-pid_t g_pid_processes[N_TOTAL_PROCESS];
+int g_n_processes = 0; /* Counter for all process created */
+pid_t g_pid_processes[N_TOTAL_PROCESS]; /* Array of pids of each process created */
 
 void execute_backup_process();
 
@@ -29,17 +39,16 @@ void wait_processes(int system_log_pipe[2], int average_grade_pipe[2]);
 void install_signal_handler();
 void signal_handler(int signo);
 
-void system_log_message(char *message);
+void add_system_log_message(char *message);
 void program_termination_log();
 void terminate_processes();
 
+/*******************  Main function *******************/
 int main(int argc, char *argv[]) {
     
     char process[NUM_P_PBPC] = {PB,PC};
-
     int system_log_pipe[2];
     int average_grade_pipe[2];
-    
     char wr_system_log_pipe[256];
     char wr_average_grade_pipe[256];
 
@@ -53,13 +62,11 @@ int main(int argc, char *argv[]) {
 
     printf("[MANAGER %d] Starting manager program...\n",getpid());
 
-    system_log_message("************ Log del sistema ************\n");
-
+    add_system_log_message("************ Log del sistema ************\n");
     execute_backup_process();
 
     create_process_by_class(PA, NULL, NULL);
     wait_one_process();
-
     create_multiple_process(process, wr_system_log_pipe, wr_average_grade_pipe);
     wait_processes(system_log_pipe, average_grade_pipe);
 
@@ -68,6 +75,7 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+/******************* Daemon for backups files *******************/
 void execute_backup_process() {
     char *bg = "&";
     char command[20];
@@ -78,14 +86,9 @@ void execute_backup_process() {
         fprintf(stderr, "[MANAGER %d] Error using system(): %s.\n", getpid(), strerror(errno));
         exit(EXIT_FAILURE);
     }
-    /*
-    if (execl(PBK_PATH, "BK", NULL) == -1) {
-        fprintf(stderr, "[MANAGER %d] Error using execl(): %s.\n", getpid(), strerror(errno));
-        exit(EXIT_FAILURE);
-    }*/
-
 }
 
+/******************* Set the path and the class of the process *******************/
 void create_process_by_class(enum ProcessClass_T class, char wr_system_log_pipe[256], char wr_average_grade_pipe[256]) {
     char *path = NULL, *str_process_class = NULL;
 
@@ -96,6 +99,7 @@ void create_process_by_class(enum ProcessClass_T class, char wr_system_log_pipe[
     g_n_processes++;
 }
 
+/******************* Create multiple processes of an array *******************/
 void create_multiple_process(const char process[NUM_P_PBPC], char wr_system_log_pipe[256], char wr_average_grade_pipe[256]) {
     int i;
 
@@ -104,6 +108,7 @@ void create_multiple_process(const char process[NUM_P_PBPC], char wr_system_log_
     }
 }
 
+/******************* Forks and executes one child process and retrieves his pid *******************/
 pid_t create_single_process(const char *path, const char *str_process_class, char wr_system_log_pipe[256], char wr_average_grade_pipe[256]) {
 
     pid_t pid;
@@ -123,6 +128,7 @@ pid_t create_single_process(const char *path, const char *str_process_class, cha
     return pid;
 }
 
+/******************* Get path and class of process *******************/
 void get_str_process_info(enum ProcessClass_T class, char **path, char **str_process_class) {
     
     switch (class) {
@@ -141,21 +147,24 @@ void get_str_process_info(enum ProcessClass_T class, char **path, char **str_pro
         case PD:
             *path = PD_PATH;
             *str_process_class = PD_CLASS;
-            break;        
+            break;
     }
 }
 
-void system_log_message(char *message) {
+/******************* Write a single message into log file *******************/
+void add_system_log_message(char *message) {
     FILE *log = open_file(LOG_FILE, "a");
     fputs(message, log);
     fclose(log);
 }
 
+/******************* Waits for a single process and add log message *******************/
 void wait_one_process() {
     wait(NULL);
-    system_log_message("Creación de directorios finalizada.\n");
+    add_system_log_message("Creación de directorios finalizada.\n");
 }
 
+/******************* Wait for multiple processes and add log message *******************/
 void wait_processes(int system_log_pipe[2], int average_grade_pipe[2]) {
     int i;
     char buffer_grade[80];
@@ -166,14 +175,15 @@ void wait_processes(int system_log_pipe[2], int average_grade_pipe[2]) {
     for (i = 0; i < NUM_P_PBPC; i++) {
         char buffer[100] = "";
         read(system_log_pipe[READ], buffer, sizeof(buffer));
-        system_log_message(buffer);
+        add_system_log_message(buffer);
     }
 
     read(average_grade_pipe[READ], buffer_grade, sizeof(buffer_grade));
-    system_log_message(buffer_grade);
-    system_log_message("FIN DE PROGRAMA.\n");
+    add_system_log_message(buffer_grade);
+    add_system_log_message("FIN DE PROGRAMA.\n");
 }
 
+/******************* Terminate all remaining processes *******************/
 void terminate_processes() {
     int i;
 
@@ -188,6 +198,7 @@ void terminate_processes() {
     }
 }
 
+/******************* Install a signal handler for CTRL+C signal *******************/
 void install_signal_handler() {
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
         fprintf(stderr, "[MANAGER %d] Error installing signal handler: %s.\n", getpid(),strerror(errno));
@@ -203,6 +214,7 @@ void signal_handler(int signo) {
     exit(EXIT_SUCCESS);
 }
 
+/******************* Add a log message with current datetime *******************/
 void program_termination_log() {
     time_t rawtime;
     struct tm * timeinfo;
@@ -214,5 +226,5 @@ void program_termination_log() {
     char *str_time = asctime(timeinfo);
 
     strcat(message, str_time);
-    system_log_message(message);
+    add_system_log_message(message);
 }
