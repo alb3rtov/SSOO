@@ -2,6 +2,7 @@ DIREXE := exec/
 DIRHEA := include/
 DIRSRC := src/
 
+CFLAGS := -I$(DIRHEA)
 LDLIBS := -pthread -std=c++11
 CC := g++
 
@@ -11,10 +12,10 @@ dirs:
 	mkdir -p $(DIREXE)
 
 manager: $(DIRSRC)manager.cpp 
-	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
-	./$(DIREXE)manager $(file) $(word) $(tn)
+	./$(DIREXE)manager "17 LEYES DEL TRABAJO EN EQUIPO.txt" castillo 5
 
 clean : 
-	rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~
+	rm -rf *~ core $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

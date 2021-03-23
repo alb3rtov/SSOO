@@ -39,14 +39,14 @@
 #define BGWHITE "\e[47m"
 
 //HIGH INTENSITY
-#define BHIBLACK "\e[0;90m"
-#define BHIRED "\e[0;91m"
-#define BHIGREEN "\e[0;92m"
-#define BHIYELLOW "\e[0;93m"
-#define BHIBLUE "\e[0;94m"
-#define BHIPURPLE "\e[0;95m"
-#define BHICYAN "\e[0;96m"
-#define BHIWHITE "\e[0;97m"
+#define HIBLACK "\e[0;90m"
+#define HIRED "\e[0;91m"
+#define HIGREEN "\e[0;92m"
+#define HIYELLOW "\e[0;93m"
+#define HIBLUE "\e[0;94m"
+#define HIPURPLE "\e[0;95m"
+#define HICYAN "\e[0;96m"
+#define HIWHITE "\e[0;97m"
 
 //BOLD HIGH INTENSITY
 #define BHIBLACK "\e[1;90m"
