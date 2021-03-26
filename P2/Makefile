@@ -15,7 +15,7 @@ manager: $(DIRSRC)manager.cpp
 	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
-	./$(DIREXE)manager "prueba.txt" castillo 3
+	./$(DIREXE)manager "17 LEYES DEL TRABAJO EN EQUIPO.txt" Tartikoff 5
 
 clean : 
 	rm -rf *~ core $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

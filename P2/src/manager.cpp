@@ -8,10 +8,10 @@
 #include <fstream>
 #include <sstream> 
 #include <iterator>
-#include <queue>
 
 #include <colors.h>
 
+/* Class for info found that match with the word */
 class Result {
 private:
     std::string previous_word;
@@ -41,6 +41,7 @@ public:
     }
 };
 
+/* Class with info of each thread */
 class ThreadInfo {
 private:
     int id;
@@ -48,7 +49,7 @@ private:
     int end;
 
 public:
-    std::priority_queue<Result> queue_results;
+    std::vector<Result> results;
 
     ThreadInfo( int id, int begin, int end) {
         this->id = id;
@@ -69,7 +70,7 @@ public:
     }
 
     void addResult(Result result) {
-        this->queue_results.push(result);
+        this->results.push_back(result);
     }
 };
 
@@ -111,15 +112,47 @@ int get_number_of_lines(std::string filename) {
     return number_of_lines;
 }
 
+/* Search in the given line if match with the word */
+std::string search_in_line(std::string line, std::string word,
+                std::string previous_last_word, int i, int cnt, int id) {
+
+    int line_number;
+    std::string previous_word, next_word, current_word;
+    std::stringstream ss(line);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> vstrings(begin,end);
+    
+    for (int j = 0; j < vstrings.size(); j++) {
+        if (vstrings[j].compare(word) == 0) {
+
+            if (vstrings[j-1].empty()) {
+                previous_word =  previous_last_word;
+            } else {
+                previous_word = vstrings[j-1];
+            }
+            
+            line_number = i+1+cnt;
+            current_word = vstrings[j];
+            next_word = vstrings[j+1];
+
+            Result result(line_number, previous_word, current_word, next_word);
+            threads_info[id].addResult(result);
+            cnt = 0;
+        }
+    }
+    /* Return the word in the previous line */
+    return vstrings[vstrings.size()-1];
+}
+
 /* Search the word into the file */
 void search_word(std::string word, int begin, int end, int id, std::string filename) {
-    //std::cout << "[Hilo " << id << " inicio: " << begin+1 << " - final: " << end+1 << "]" << std::endl;
 
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
     std::string line, previous_last_word, previous_word, current_word, next_word;
-    int line_number, number_of_lines = 0;
+    int line_number, number_of_lines = 0, cnt = 0;
 
     /* Start reading in the begin line */
     while (std::getline(file, line)) {
@@ -129,51 +162,27 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
             number_of_lines++;
         }
     }
-
-    /* Read line by line */
+    /* Read line by line the file */
     for (int i = begin; i <= end; i++) {
-        
-        std::stringstream ss(line);
-        std::istream_iterator<std::string> begin(ss);
-        std::istream_iterator<std::string> end;
-        std::vector<std::string> vstrings(begin,end);
-        
-        for (int j = 0; j < vstrings.size(); j++) {
-            if (vstrings[j].compare(word) == 0) {
-                if (vstrings[j-1].empty()) {
-                    previous_word =  previous_last_word;
-                } else {
-                    previous_word = vstrings[j-1];
-                }
-                line_number = i+1;
-                current_word = vstrings[j];
-                next_word = vstrings[j+1];
-
-                Result result(line_number, previous_word, current_word, next_word);
-                threads_info[id].addResult(result);
-                
-                //set results
-                //std::cout << "Linea " << line_number << " - (Hilo: " << id << "): " << "... " << previous_word 
-                  //                     << " " << vstrings[j] << " " << vstrings[j+1] << " ..." << std::endl;
+        if (line.length() == 1) {
+            std::getline(file, line);
+            cnt++; /* Characters of new lines */
+            if (line == "\0") { /* End of file */
+                break;
             }
         }
-
-        
-        /* Keep the word in the previous line */
-        previous_last_word = vstrings[vstrings.size()-1];
+        previous_last_word = search_in_line(line, word, previous_last_word, i, cnt, id);
         std::getline(file, line);
     }
-    //std::cout << "Hilo " << id << " "<<threads_info[id].queue_results.size() << std::endl;
     file.close();
 }
 
-/* Create all threads and */
+/* Create all threads and set the part of the file to process */
 void create_and_distribute_threads(int number_threads, std::vector<std::thread> &threads, 
                     int number_of_lines, std::string word, std::string filename) {
 
     int size_task = number_of_lines/number_threads;
-    std::cout << "Tamaño divison: " << size_task << std::endl;
-    
+
     for (int i = 0; i < number_threads; i++) {
         int begin = i*size_task;
         int end = (begin + size_task)-1;
@@ -188,15 +197,19 @@ void create_and_distribute_threads(int number_threads, std::vector<std::thread> 
 
 /* Print results, line number and words found */
 void print_results(int number_threads) {
+    std::cout << "\n";
+
     for (int i = 0; i < number_threads; i++) {
-        for (int j = 0; j < threads_info[i].queue_results.size(); j++) {
+        for (int j = 0; j < threads_info[i].results.size(); j++) {
             std::cout << "[Hilo " << threads_info[i].getId() << 
-                " inicio: " << threads_info[i].getBegin()+1 << " - final: " << 
-                threads_info[i].getEnd()+1 << "] :: línea " 
-                ":: ... " << std::endl;
-
+                " inicio: " << threads_info[i].getBegin()+1 << 
+                " - final: " << threads_info[i].getEnd()+1 << 
+                "] :: línea " << threads_info[i].results[j].line_number <<
+                " :: ... " << threads_info[i].results[j].getPreviousWord() << 
+                " " << threads_info[i].results[j].getWord() << 
+                " " << threads_info[i].results[j].getNextWord() <<
+                " ..." << std::endl;
         }
-
     }
 }
 
@@ -210,8 +223,6 @@ int main(int argc, char *argv[]) {
     parse_argv(argc, argv, &filename, &word, &number_threads);
     number_of_lines = get_number_of_lines(filename);
     
-    std::cout << "Numero de lineas: " << number_of_lines << std::endl;
-
     create_and_distribute_threads(number_threads, threads, number_of_lines, word, filename);
     print_results(number_threads);
 
