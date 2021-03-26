@@ -5,10 +5,39 @@
 #include <atomic>
 #include <algorithm>
 #include <functional>
+#include <fstream>
+#include <queue>
 
 #include <colors.h>
 
+class Result {
+private:
+    int line_number;
+    std::string line;
+
+public:
+    Result(int line_number, std::string line) {
+        this->line_number = line_number;
+        this->line = line;
+    }
+};
+
+class ThreadInfo {
+private:
+    int id;
+    int begin;
+    int end;
+
+public:
+    ThreadInfo( int id, int begin, int end) {
+        this->id = id;
+        this->begin = begin;
+        this->end = end;
+    }
+};
+
 std::string DIR_BOOKS = "books/";
+std::vector<ThreadInfo> threads_info;
 
 /* Parse arguments */
 void parse_argv(int argc, char *argv[], std::string *filename ,
@@ -39,25 +68,38 @@ int get_number_of_lines(std::string filename) {
     return number_of_lines;
 }
 
-
-void search_word(std::string word, int begin, int end, int id) {
+/* Search the word into the file */
+void search_word(std::string word, int begin, int end, int id, std::string filename) {
     std::cout << "[Hilo " << id << " inicio: " << begin << " - final: " << end << "]" << std::endl;
+
+    
+
+    /*std::ifstream file(filename);
+    std::string str;
+
+    for (int i = begin; i < end; i++) {
+        std::getline(file, str);
+        std::cout << str << std::endl;
+    }*/
 }
 
 /* Create all threads and */
-void create_and_distribute_threads(int number_threads, std::vector<std::thread> &v_hilos, 
-                    int number_of_lines, std::string word) {
+void create_and_distribute_threads(int number_threads, std::vector<std::thread> &threads, 
+                    int number_of_lines, std::string word, std::string filename) {
 
     int size_task = number_of_lines/number_threads;
     std::cout << "Tamaño divison: " << size_task << std::endl;
+    
     for (int i = 0; i < number_threads; i++) {
         int begin = i*size_task;
         int end = (begin + size_task)-1;
         if (i == number_threads-1) end = number_of_lines-1;
 
-        v_hilos.push_back(std::thread(search_word, word, begin, end, i));
+        ThreadInfo ithread(i, begin, end);
+        threads_info.push_back(ithread);
+        threads.push_back(std::thread(search_word, word, begin, end, i, filename));
     }
-    std::for_each(v_hilos.begin(), v_hilos.end(), std::mem_fn(&std::thread::join));
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
 
 /* Main function */
@@ -65,17 +107,14 @@ int main(int argc, char *argv[]) {
 
     int number_threads, number_of_lines, size_task;
     std::string word, filename;
-    std::vector<std::thread> v_hilos;
+    std::vector<std::thread> threads;
 
     parse_argv(argc, argv, &filename, &word, &number_threads);
     number_of_lines = get_number_of_lines(filename);
     
     std::cout << "Numero de lineas: " << number_of_lines << std::endl;
 
-    
-    create_and_distribute_threads(number_threads, v_hilos, number_of_lines, word);
-    //std::cout << word << std::endl;
-    //std::cout << filename << std::endl;
-    //std::cout << thread_number << std::endl;
+    create_and_distribute_threads(number_threads, threads, number_of_lines, word, filename);
+
     return 0;
 }
