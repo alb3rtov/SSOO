@@ -15,7 +15,7 @@ manager: $(DIRSRC)manager.cpp
 	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
-	./$(DIREXE)manager "prueba.txt" castillo 1
+	./$(DIREXE)manager "prueba.txt" castillo 3
 
 clean : 
 	rm -rf *~ core $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~
