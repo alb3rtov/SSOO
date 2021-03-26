@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <functional>
 #include <fstream>
+#include <sstream> 
+#include <iterator>
 #include <queue>
 
 #include <colors.h>
@@ -70,17 +72,41 @@ int get_number_of_lines(std::string filename) {
 
 /* Search the word into the file */
 void search_word(std::string word, int begin, int end, int id, std::string filename) {
-    std::cout << "[Hilo " << id << " inicio: " << begin << " - final: " << end << "]" << std::endl;
+    //std::cout << "[Hilo " << id << " inicio: " << begin << " - final: " << end << "]" << std::endl;
 
-    
+    filename = DIR_BOOKS + filename;
 
-    /*std::ifstream file(filename);
-    std::string str;
+    std::ifstream file(filename);
+    std::string line, original_line, find_word, previous_last_word, token, previous_word;
+    int number_line;
 
-    for (int i = begin; i < end; i++) {
-        std::getline(file, str);
-        std::cout << str << std::endl;
-    }*/
+    for (int i = begin; i <= end; i++) {
+        std::getline(file, line);
+
+        std::stringstream ss(line);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> vstrings(begin,end);
+        
+        for (int j = 0; j < vstrings.size(); j++) {
+            if (vstrings[j].compare(word) == 0) {
+                if (vstrings[j-1].empty()) {
+                    previous_word =  previous_last_word;
+                } else {
+                    previous_word = vstrings[j-1];
+                }
+
+                std::cout << "... " << previous_word << " " << vstrings[j] 
+                            << " " << vstrings[j+1] << " ..." << std::endl;
+            }
+        }
+
+        /* Keep the previous line */
+        previous_last_word = vstrings[vstrings.size()-1];
+        //std::cout << previous_last_word << std::endl;
+    }
+
+    file.close();
 }
 
 /* Create all threads and */
