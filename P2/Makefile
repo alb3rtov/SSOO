@@ -12,7 +12,7 @@ dirs:
 	mkdir -p $(DIREXE)
 
 manager: $(DIRSRC)manager.cpp 
-	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
+	$(CC) $(DIRSRC)Result.cpp $(DIRSRC)ThreadInfo.cpp -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
 	./$(DIREXE)manager "17 LEYES DEL TRABAJO EN EQUIPO.txt" Tartikoff 5

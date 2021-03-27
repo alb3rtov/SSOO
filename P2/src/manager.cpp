@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <thread>
 #include <atomic>
 #include <algorithm>
@@ -9,75 +8,8 @@
 #include <sstream> 
 #include <iterator>
 
-#include <colors.h>
-
-/* Class for info found that match with the word */
-class Result {
-private:
-    std::string previous_word;
-    std::string word;
-    std::string next_word;
-
-public:
-    int line_number;
-
-    Result(int line_number, std::string previous_word, std::string word, std::string next_word) {
-        this->line_number = line_number;
-        this->previous_word = previous_word;
-        this->word = word;
-        this->next_word = next_word;
-    }
-
-    std::string getWord() {
-        return this->word;
-    }
-
-    std::string getPreviousWord() {
-        return this->previous_word;
-    }
-
-    std::string getNextWord() {
-        return this->next_word;
-    }
-};
-
-/* Class with info of each thread */
-class ThreadInfo {
-private:
-    int id;
-    int begin;
-    int end;
-
-public:
-    std::vector<Result> results;
-
-    ThreadInfo( int id, int begin, int end) {
-        this->id = id;
-        this->begin = begin;
-        this->end = end;
-    }
-
-    int getId() {
-        return this->id;
-    }
-
-    int getBegin() {
-        return this->begin;
-    }
-
-    int getEnd() {
-        return this->end;
-    }
-
-    void addResult(Result result) {
-        this->results.push_back(result);
-    }
-};
-
-/* Overload operator */
-bool operator<(const Result& result1, const Result& result2) {
-	return result1.line_number > result2.line_number;
-}
+#include "ThreadInfo.h"
+#include "colors.h"
 
 /* Declare global variables */
 std::string DIR_BOOKS = "books/";
@@ -131,7 +63,7 @@ std::string search_in_line(std::string line, std::string word,
             } else {
                 previous_word = vstrings[j-1];
             }
-            
+
             line_number = i+1+cnt;
             current_word = vstrings[j];
             next_word = vstrings[j+1];
@@ -201,16 +133,18 @@ void print_results(int number_threads) {
 
     for (int i = 0; i < number_threads; i++) {
         for (int j = 0; j < threads_info[i].results.size(); j++) {
-            std::cout << "[Hilo " << threads_info[i].getId() << 
+            std::cout << BHIYELLOW << "[Hilo " << threads_info[i].getId() << 
                 " inicio: " << threads_info[i].getBegin()+1 << 
                 " - final: " << threads_info[i].getEnd()+1 << 
-                "] :: línea " << threads_info[i].results[j].line_number <<
-                " :: ... " << threads_info[i].results[j].getPreviousWord() << 
+                "] " << BHIWHITE << ":: " << BHICYAN << "línea " << 
+                threads_info[i].results[j].line_number << BHIWHITE <<
+                " :: ... " << BHIRED << threads_info[i].results[j].getPreviousWord() << 
                 " " << threads_info[i].results[j].getWord() << 
-                " " << threads_info[i].results[j].getNextWord() <<
+                " " << threads_info[i].results[j].getNextWord() << BHIWHITE <<
                 " ..." << std::endl;
         }
     }
+    std::cout << "\n";
 }
 
 /* Main function */
