@@ -15,7 +15,7 @@ manager: $(DIRSRC)manager.cpp
 	$(CC) $(DIRSRC)Result.cpp $(DIRSRC)ThreadInfo.cpp -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
-	./$(DIREXE)manager "17 LEYES DEL TRABAJO EN EQUIPO.txt" Tartikoff 5
+	./$(DIREXE)manager "17 LEYES DEL TRABAJO EN EQUIPO.txt" eBay 5
 
 clean : 
 	rm -rf *~ core $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

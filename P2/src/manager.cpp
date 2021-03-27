@@ -45,8 +45,8 @@ int get_number_of_lines(std::string filename) {
 }
 
 /* Search in the given line if match with the word */
-std::string search_in_line(std::string line, std::string word,
-                std::string previous_last_word, int i, int cnt, int id) {
+void search_in_line(std::string line, std::string word,
+                std::string &previous_last_word, int i, int cnt, int id) {
 
     int line_number;
     std::string previous_word, next_word, current_word;
@@ -54,39 +54,44 @@ std::string search_in_line(std::string line, std::string word,
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin,end);
-    
+    line_number = i+1+cnt;
     for (int j = 0; j < vstrings.size(); j++) {
-        if (vstrings[j].compare(word) == 0) {
-
-            if (vstrings[j-1].empty()) {
+        if (vstrings[j].find(word) != std::string::npos) {
+            //std::cout << vstrings[j-1].empty()   << std::endl;
+            /* If the word is greater than "The chemical composition of titin" then is pointing to a NULL value */
+            if (vstrings[j-1].size() > 189819) { 
                 previous_word =  previous_last_word;
             } else {
                 previous_word = vstrings[j-1];
             }
 
-            line_number = i+1+cnt;
+            
             current_word = vstrings[j];
             next_word = vstrings[j+1];
+            
+            //std::cout << "hola " << line_number << std::endl;
 
             Result result(line_number, previous_word, current_word, next_word);
             threads_info[id].addResult(result);
+            
             cnt = 0;
         }
     }
     /* Return the word in the previous line */
-    return vstrings[vstrings.size()-1];
+
+    previous_last_word = vstrings[vstrings.size()-1];
 }
 
 /* Search the word into the file */
 void search_word(std::string word, int begin, int end, int id, std::string filename) {
-
+    //std::cout << "hilo " << id << " begin: " << begin << " end: " << end << std::endl;
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
     std::string line, previous_last_word, previous_word, current_word, next_word;
     int line_number, number_of_lines = 0, cnt = 0;
 
-    /* Start reading in the begin line */
+    /* Set the getline in the right line where start reading */
     while (std::getline(file, line)) {
         if (number_of_lines == begin) {
             break;
@@ -98,12 +103,12 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
     for (int i = begin; i <= end; i++) {
         if (line.length() == 1) {
             std::getline(file, line);
-            cnt++; /* Characters of new lines */
+            cnt++; /* Characters of new lines "\n" */
             if (line == "\0") { /* End of file */
                 break;
             }
         }
-        previous_last_word = search_in_line(line, word, previous_last_word, i, cnt, id);
+        search_in_line(line, word, previous_last_word, i, cnt, id);
         std::getline(file, line);
     }
     file.close();
