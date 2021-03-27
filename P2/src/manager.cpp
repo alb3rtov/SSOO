@@ -44,32 +44,71 @@ int get_number_of_lines(std::string filename) {
     return number_of_lines;
 }
 
+/* Search the next word of the next line */
+std::string search_next_word(std::string filename, int line_number) {
+        
+    int number_of_lines = 0;
+    std::string next_word, line;
+    std::ifstream file(filename);
+
+    while (std::getline(file, line)) {
+        if (number_of_lines == line_number) {
+            break;
+        } else {
+            number_of_lines++;
+        }
+    }
+
+    if (line.length() == 1) {
+        std::getline(file, line);
+    }
+    
+    if (line == "\0") {
+            next_word = "...";
+    } else {
+        std::stringstream ss(line);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> vstrings(begin,end);
+
+        next_word = vstrings[0];
+    }
+    return next_word;
+}
+
+/* Set the edges words of the found word */
+std::string set_edge_words(int desp, int j, std::string edge_word, std::vector<std::string> vstrings) {
+    std::string word;
+    
+    if (j == 0) {
+        word = edge_word;
+    } else if (j == vstrings.size()-1) {
+        word = edge_word;
+    } else {
+        word = vstrings[j+desp];
+    }
+
+    return word;
+}
+
 /* Search in the given line if match with the word */
-void search_in_line(std::string line, std::string word,
+void search_in_line(std::string filename, std::string line, std::string word, std::string &next_first_word,
                 std::string &previous_last_word, int i, int cnt, int id) {
 
     int line_number;
-    std::string previous_word, next_word, current_word;
+    std::string previous_word, current_word, next_word;
     std::stringstream ss(line);
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin,end);
     line_number = i+1+cnt;
+
     for (int j = 0; j < vstrings.size(); j++) {
         if (vstrings[j].find(word) != std::string::npos) {
-            //std::cout << vstrings[j-1].empty()   << std::endl;
-            /* If the word is greater than "The chemical composition of titin" then is pointing to a NULL value */
-            if (vstrings[j-1].size() > 189819) { 
-                previous_word =  previous_last_word;
-            } else {
-                previous_word = vstrings[j-1];
-            }
 
-            
+            previous_word = set_edge_words(-1, j, previous_last_word, vstrings);  
             current_word = vstrings[j];
-            next_word = vstrings[j+1];
-            
-            //std::cout << "hola " << line_number << std::endl;
+            next_word = set_edge_words(1, j, next_first_word, vstrings);
 
             Result result(line_number, previous_word, current_word, next_word);
             threads_info[id].addResult(result);
@@ -77,9 +116,10 @@ void search_in_line(std::string line, std::string word,
             cnt = 0;
         }
     }
-    /* Return the word in the previous line */
-
+    /* Set the last word in the previous line */
     previous_last_word = vstrings[vstrings.size()-1];
+    /* Set the first word in the next line */
+    next_first_word = search_next_word(filename, line_number+1);
 }
 
 /* Search the word into the file */
@@ -88,7 +128,7 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
-    std::string line, previous_last_word, previous_word, current_word, next_word;
+    std::string line, previous_last_word, next_first_word;
     int line_number, number_of_lines = 0, cnt = 0;
 
     /* Set the getline in the right line where start reading */
@@ -108,7 +148,7 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
                 break;
             }
         }
-        search_in_line(line, word, previous_last_word, i, cnt, id);
+        search_in_line(filename, line, word, next_first_word, previous_last_word, i, cnt, id);
         std::getline(file, line);
     }
     file.close();
