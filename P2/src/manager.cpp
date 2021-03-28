@@ -124,7 +124,6 @@ void search_in_line(std::string filename, std::string line, std::string word, st
 
 /* Search the word into the file */
 void search_word(std::string word, int begin, int end, int id, std::string filename) {
-    //std::cout << "hilo " << id << " begin: " << begin << " end: " << end << std::endl;
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
