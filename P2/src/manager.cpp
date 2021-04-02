@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream> 
 #include <iterator>
+#include <mutex>
 
 #include "ThreadInfo.h"
 #include "colors.h"
@@ -14,6 +15,7 @@
 /* Declare global variables */
 std::string DIR_BOOKS = "books/";
 std::vector<ThreadInfo> threads_info;
+std::mutex mutex;
 
 /* Parse arguments */
 void parse_argv(int argc, char *argv[], std::string *filename ,
@@ -77,12 +79,10 @@ std::string search_next_word(std::string filename, int line_number) {
 }
 
 /* Set the edges words of the found word */
-std::string set_edge_words(int desp, int j, std::string edge_word, std::vector<std::string> vstrings) {
+std::string set_edge_words(int pos, int desp, int j, std::string edge_word, std::vector<std::string> vstrings) {
     std::string word;
     
-    if (j == 0) {
-        word = edge_word;
-    } else if (j == vstrings.size()-1) {
+    if (j == pos) { /* Start of the line */
         word = edge_word;
     } else {
         word = vstrings[j+desp];
@@ -106,13 +106,15 @@ void search_in_line(std::string filename, std::string line, std::string word, st
     for (int j = 0; j < vstrings.size(); j++) {
         if (vstrings[j].find(word) != std::string::npos) {
 
-            previous_word = set_edge_words(-1, j, previous_last_word, vstrings);  
+            previous_word = set_edge_words(0, -1, j, previous_last_word, vstrings);  
             current_word = vstrings[j];
-            next_word = set_edge_words(1, j, next_first_word, vstrings);
+            next_word = set_edge_words(vstrings.size()-1, 1, j, next_first_word, vstrings);
 
+            mutex.lock();
             Result result(line_number, previous_word, current_word, next_word);
             threads_info[id].addResult(result);
-            
+            mutex.unlock();
+
             cnt = 0;
         }
     }
