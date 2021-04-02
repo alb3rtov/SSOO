@@ -15,7 +15,7 @@ manager: $(DIRSRC)manager.cpp
 	$(CC) $(DIRSRC)Result.cpp $(DIRSRC)ThreadInfo.cpp -o $(DIREXE)$@ $^ $(LDLIBS) $(CFLAGS)
 
 ssoiigle:
-	./$(DIREXE)manager "VIVE TU SUEÑO - JOHN MAXWELL.txt" Emerson 5
+	./$(DIREXE)manager "21 LEYES DEL LIDERAZGO - JOHN C. MAXWELL.txt" cuatro 8
 
 clean : 
 	rm -rf *~ core $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~
