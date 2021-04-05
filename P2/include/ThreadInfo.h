@@ -4,12 +4,13 @@
 /* Class that store info for each thread */
 class ThreadInfo {
 private:
-    int id;
-    int begin;
-    int end;
+    int _id;
+    int _begin;
+    int _end;
 
 public:
-    std::vector<Result> results;
+    std::vector<Result> m_results;
+    
     ThreadInfo(int id, int begin, int end);
     int getId();
     int getBegin();

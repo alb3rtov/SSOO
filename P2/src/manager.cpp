@@ -14,8 +14,8 @@
 
 /* Declare global variables */
 std::string DIR_BOOKS = "books/";
-std::vector<ThreadInfo> threads_info;
-std::mutex mutex;
+std::vector<ThreadInfo> g_threads_info;
+std::mutex g_mutex;
 
 /* Parse arguments */
 void parse_argv(int argc, char *argv[], std::string *filename ,
@@ -110,10 +110,11 @@ void search_in_line(std::string filename, std::string line, std::string word, st
             current_word = vstrings[j];
             next_word = set_edge_words(vstrings.size()-1, 1, j, next_first_word, vstrings);
 
-            mutex.lock();
             Result result(line_number, previous_word, current_word, next_word);
-            threads_info[id].addResult(result);
-            mutex.unlock();
+            
+            std::unique_lock<std::mutex> g_lk(g_mutex);
+            g_threads_info[id].addResult(result);
+            g_lk.unlock();
 
             cnt = 0;
         }
@@ -167,7 +168,7 @@ void create_and_distribute_threads(int number_threads, std::vector<std::thread> 
         if (i == number_threads-1) end = number_of_lines-1;
 
         ThreadInfo ithread(i, begin, end);
-        threads_info.push_back(ithread);
+        g_threads_info.push_back(ithread);
         threads.push_back(std::thread(search_word, word, begin, end, i, filename));
     }
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
@@ -178,15 +179,15 @@ void print_results(int number_threads) {
     std::cout << "\n";
 
     for (int i = 0; i < number_threads; i++) {
-        for (int j = 0; j < threads_info[i].results.size(); j++) {
-            std::cout << BHIYELLOW << "[Hilo " << threads_info[i].getId() << 
-                " inicio: " << threads_info[i].getBegin()+1 << 
-                " - final: " << threads_info[i].getEnd()+1 << 
+        for (int j = 0; j < g_threads_info[i].m_results.size(); j++) {
+            std::cout << BHIYELLOW << "[Hilo " << g_threads_info[i].getId() << 
+                " inicio: " << g_threads_info[i].getBegin()+1 << 
+                " - final: " << g_threads_info[i].getEnd()+1 << 
                 "] " << BHIWHITE << ":: " << BHICYAN << "línea " << 
-                threads_info[i].results[j].line_number << BHIWHITE <<
-                " :: ... " << BHIRED << threads_info[i].results[j].getPreviousWord() << 
-                " " << threads_info[i].results[j].getWord() << 
-                " " << threads_info[i].results[j].getNextWord() << BHIWHITE <<
+                g_threads_info[i].m_results[j].m_line_number << BHIWHITE <<
+                " :: ... " << BHIRED << g_threads_info[i].m_results[j].getPreviousWord() << 
+                " " << g_threads_info[i].m_results[j].getWord() << 
+                " " << g_threads_info[i].m_results[j].getNextWord() << BHIWHITE <<
                 " ..." << std::endl;
         }
     }
