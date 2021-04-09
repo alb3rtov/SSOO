@@ -112,7 +112,7 @@ void search_in_line(std::string filename, std::string line, std::string word, st
 
             Result result(line_number, previous_word, current_word, next_word);
             
-            std::unique_lock<std::mutex> g_lk(g_mutex);
+            std::unique_lock<std::mutex> g_lk(g_mutex); /* Protect g_threads_info vector */
             g_threads_info[id].addResult(result);
             g_lk.unlock();
 
