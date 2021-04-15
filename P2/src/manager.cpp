@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include <atomic>
 #include <algorithm>
 #include <functional>
 #include <fstream>
@@ -90,9 +89,43 @@ std::string set_edge_words(int pos, int desp, int j, std::string edge_word, std:
 
     return word;
 }
+/*
+char remove_accents(char c) {
+
+    switch (c) {
+        case 'á':
+            c = 'a';
+            break;
+        case 'é':
+            c = 'e';
+            break;
+        case 'í':
+            c = 'i';
+            break;
+        case 'ó':
+            c = 'o';
+            break;
+        case 'ú':
+            c = 'u';
+            break;
+    }
+
+    return c;
+}*/
+
+/* Convert the word to lowercase and remove accents */
+std::string process_word(std::string word) {
+    std::string prueba = word;
+
+    std::for_each(word.begin(), word.end(), [](char & c) {
+        c = ::tolower(c);
+        //c = remove_accents(c);
+    });
+    return word;
+}
 
 /* Search in the given line if match with the word */
-void search_in_line(std::string filename, std::string line, std::string word, std::string &next_first_word,
+void search_in_line(std::string filename, std::string line, std::string fixed_word, std::string &next_first_word,
                 std::string &previous_last_word, int i, int cnt, int id) {
 
     int line_number;
@@ -102,10 +135,12 @@ void search_in_line(std::string filename, std::string line, std::string word, st
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin,end);
     line_number = i+1+cnt;
-
+   
     for (int j = 0; j < vstrings.size(); j++) {
-        if (vstrings[j].find(word) != std::string::npos) {
-
+        std::string selected_word = process_word(vstrings[j]);
+        
+        if (selected_word.find(fixed_word) != std::string::npos) {
+            
             previous_word = set_edge_words(0, -1, j, previous_last_word, vstrings);  
             current_word = vstrings[j];
             next_word = set_edge_words(vstrings.size()-1, 1, j, next_first_word, vstrings);
@@ -126,7 +161,7 @@ void search_in_line(std::string filename, std::string line, std::string word, st
 }
 
 /* Search the word into the file */
-void search_word(std::string word, int begin, int end, int id, std::string filename) {
+void search_word(std::string fixed_word, int begin, int end, int id, std::string filename) {
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
@@ -150,7 +185,7 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
                 break;
             }
         }
-        search_in_line(filename, line, word, next_first_word, previous_last_word, i, cnt, id);
+        search_in_line(filename, line, fixed_word, next_first_word, previous_last_word, i, cnt, id);
         std::getline(file, line);
     }
     file.close();
@@ -158,7 +193,7 @@ void search_word(std::string word, int begin, int end, int id, std::string filen
 
 /* Create all threads and set the part of the file to process */
 void create_and_distribute_threads(int number_threads, std::vector<std::thread> &threads, 
-                    int number_of_lines, std::string word, std::string filename) {
+                    int number_of_lines, std::string fixed_word, std::string filename) {
 
     int size_task = number_of_lines/number_threads;
 
@@ -169,7 +204,7 @@ void create_and_distribute_threads(int number_threads, std::vector<std::thread> 
 
         ThreadInfo ithread(i, begin, end);
         g_threads_info.push_back(ithread);
-        threads.push_back(std::thread(search_word, word, begin, end, i, filename));
+        threads.push_back(std::thread(search_word, fixed_word, begin, end, i, filename));
     }
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
@@ -196,15 +231,15 @@ void print_results(int number_threads) {
 
 /* Main function */
 int main(int argc, char *argv[]) {
-
     int number_threads, number_of_lines, size_task;
-    std::string word, filename;
+    std::string word, fixed_word, filename;
     std::vector<std::thread> threads;
 
     parse_argv(argc, argv, &filename, &word, &number_threads);
     number_of_lines = get_number_of_lines(filename);
-    
-    create_and_distribute_threads(number_threads, threads, number_of_lines, word, filename);
+    fixed_word = process_word(word);
+
+    create_and_distribute_threads(number_threads, threads, number_of_lines, fixed_word, filename);
     print_results(number_threads);
 
     return 0;
