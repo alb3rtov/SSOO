@@ -8,6 +8,7 @@
 #include <iterator>
 #include <mutex>
 
+#include "process_strings.h"
 #include "ThreadInfo.h"
 #include "colors.h"
 
@@ -89,69 +90,37 @@ std::string set_edge_words(int pos, int desp, int j, std::string edge_word, std:
 
     return word;
 }
-/*
-char remove_accents(char c) {
-
-    switch (c) {
-        case 'á':
-            c = 'a';
-            break;
-        case 'é':
-            c = 'e';
-            break;
-        case 'í':
-            c = 'i';
-            break;
-        case 'ó':
-            c = 'o';
-            break;
-        case 'ú':
-            c = 'u';
-            break;
-    }
-
-    return c;
-}*/
-
-/* Convert the word to lowercase and remove accents */
-std::string process_word(std::string word) {
-    std::string prueba = word;
-
-    std::for_each(word.begin(), word.end(), [](char & c) {
-        c = ::tolower(c);
-        //c = remove_accents(c);
-    });
-    return word;
-}
 
 /* Search in the given line if match with the word */
 void search_in_line(std::string filename, std::string line, std::string fixed_word, std::string &next_first_word,
                 std::string &previous_last_word, int i, int cnt, int id) {
 
-    int line_number;
+    int line_number = 1;
     std::string previous_word, current_word, next_word;
     std::stringstream ss(line);
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin,end);
-    line_number = i+1+cnt;
+    line_number += i+cnt;
    
     for (int j = 0; j < vstrings.size(); j++) {
-        std::string selected_word = process_word(vstrings[j]);
-        
-        if (selected_word.find(fixed_word) != std::string::npos) {
-            
-            previous_word = set_edge_words(0, -1, j, previous_last_word, vstrings);  
-            current_word = vstrings[j];
-            next_word = set_edge_words(vstrings.size()-1, 1, j, next_first_word, vstrings);
+        std::string selected_word = convert_to_lowercase(vstrings[j]);
 
-            Result result(line_number, previous_word, current_word, next_word);
-            
-            std::unique_lock<std::mutex> g_lk(g_mutex); /* Protect g_threads_info vector */
-            g_threads_info[id].addResult(result);
-            g_lk.unlock();
+        if (selected_word.find(fixed_word) != std::string::npos) { /* First find strings that contain the word */
+            if (compare_strings(selected_word, fixed_word)) {   
 
-            cnt = 0;
+                previous_word = set_edge_words(0, -1, j, previous_last_word, vstrings);  
+                current_word = vstrings[j];
+                next_word = set_edge_words(vstrings.size()-1, 1, j, next_first_word, vstrings);
+
+                Result result(line_number, previous_word, current_word, next_word);
+
+                std::unique_lock<std::mutex> g_lk(g_mutex); /* Protect g_threads_info vector */
+                g_threads_info[id].addResult(result);
+                g_lk.unlock();
+
+                cnt = 0;
+            }
         }
     }
     /* Set the last word in the previous line */
@@ -176,17 +145,24 @@ void search_word(std::string fixed_word, int begin, int end, int id, std::string
             number_of_lines++;
         }
     }
+    
+    int iterations = end - number_of_lines;
+
     /* Read line by line the file */
-    for (int i = begin; i <= end; i++) {
+    for (int i = begin; i <= end && iterations >= 0; i++) {
+        
         if (line.length() == 1) {
             std::getline(file, line);
+            iterations--;
             cnt++; /* Characters of new lines "\n" */
             if (line == "\0") { /* End of file */
                 break;
             }
         }
+        
         search_in_line(filename, line, fixed_word, next_first_word, previous_last_word, i, cnt, id);
         std::getline(file, line);
+        iterations--;
     }
     file.close();
 }
@@ -200,7 +176,8 @@ void create_and_distribute_threads(int number_threads, std::vector<std::thread> 
     for (int i = 0; i < number_threads; i++) {
         int begin = i*size_task;
         int end = (begin + size_task)-1;
-        if (i == number_threads-1) end = number_of_lines-1;
+        /* If the division isn't exact the remainder lines set to the last thread*/
+        if (i == number_threads-1) end = number_of_lines-1; 
 
         ThreadInfo ithread(i, begin, end);
         g_threads_info.push_back(ithread);
@@ -231,13 +208,14 @@ void print_results(int number_threads) {
 
 /* Main function */
 int main(int argc, char *argv[]) {
+
     int number_threads, number_of_lines, size_task;
     std::string word, fixed_word, filename;
     std::vector<std::thread> threads;
 
     parse_argv(argc, argv, &filename, &word, &number_threads);
     number_of_lines = get_number_of_lines(filename);
-    fixed_word = process_word(word);
+    fixed_word = convert_to_lowercase(word);
 
     create_and_distribute_threads(number_threads, threads, number_of_lines, fixed_word, filename);
     print_results(number_threads);
