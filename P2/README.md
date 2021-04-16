@@ -21,3 +21,5 @@ To execute you have to use Makefile and type `make ssooiigle`
 
 ## Clean directories
 To clean the directory use Makefile and type `make clean`
+
+In order to add more txt files to read, you must to include it in the **books directory**.

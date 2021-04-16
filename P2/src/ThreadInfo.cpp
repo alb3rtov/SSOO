@@ -19,6 +19,10 @@ int ThreadInfo::getEnd() {
     return this->_end;
 }
 
+bool ThreadInfo::isEmpty() {
+    return this->m_results.empty();
+}
+
 void ThreadInfo::addResult(Result result) {
     this->m_results.push_back(result);
 }

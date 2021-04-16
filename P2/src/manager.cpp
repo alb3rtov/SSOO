@@ -22,7 +22,7 @@ void parse_argv(int argc, char *argv[], std::string *filename ,
             std::string *word, int *number_threads) {
     
     if (argc != 4) {
-        std::cout << "Not enough arguments, 4 arguments are needed" << std::endl;
+        std::cerr << BHIRED << "\nNot enough arguments, 4 arguments are needed.\n" << BHIWHITE << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -39,10 +39,16 @@ int get_number_of_lines(std::string filename) {
     std::string line;
     std::ifstream myfile(complete_filename);
 
-    while (std::getline(myfile, line)) {
-        ++number_of_lines;
+    if (!myfile) {
+        std::cerr << BHIRED << "\nUnable to open the file " 
+            << complete_filename << ".\n" << BHIWHITE << std::endl;
+        std::exit(EXIT_FAILURE);
     }
-
+    else {
+        while (std::getline(myfile, line)) {
+            ++number_of_lines;
+        }
+    }
     return number_of_lines;
 }
 
@@ -87,12 +93,11 @@ std::string set_edge_words(int pos, int desp, int j, std::string edge_word, std:
     } else {
         word = vstrings[j+desp];
     }
-
     return word;
 }
 
 /* Search in the given line if match with the word */
-void search_in_line(std::string filename, std::string line, std::string fixed_word, std::string &next_first_word,
+void search_in_line(std::string filename, std::string line, std::string word, std::string &next_first_word,
                 std::string &previous_last_word, int i, int cnt, int id) {
 
     int line_number = 1;
@@ -106,8 +111,8 @@ void search_in_line(std::string filename, std::string line, std::string fixed_wo
     for (int j = 0; j < vstrings.size(); j++) {
         std::string selected_word = convert_to_lowercase(vstrings[j]);
 
-        if (selected_word.find(fixed_word) != std::string::npos) { /* First find strings that contain the word */
-            if (compare_strings(selected_word, fixed_word)) {   
+        if (selected_word.find(word) != std::string::npos) { /* First find strings that contain the word */
+            if (compare_strings(selected_word, word)) {   
 
                 previous_word = set_edge_words(0, -1, j, previous_last_word, vstrings);  
                 current_word = vstrings[j];
@@ -130,7 +135,7 @@ void search_in_line(std::string filename, std::string line, std::string fixed_wo
 }
 
 /* Search the word into the file */
-void search_word(std::string fixed_word, int begin, int end, int id, std::string filename) {
+void search_word(std::string word, int begin, int end, int id, std::string filename) {
     filename = DIR_BOOKS + filename;
 
     std::ifstream file(filename);
@@ -160,7 +165,7 @@ void search_word(std::string fixed_word, int begin, int end, int id, std::string
             }
         }
         
-        search_in_line(filename, line, fixed_word, next_first_word, previous_last_word, i, cnt, id);
+        search_in_line(filename, line, word, next_first_word, previous_last_word, i, cnt, id);
         std::getline(file, line);
         iterations--;
     }
@@ -169,7 +174,7 @@ void search_word(std::string fixed_word, int begin, int end, int id, std::string
 
 /* Create all threads and set the part of the file to process */
 void create_and_distribute_threads(int number_threads, std::vector<std::thread> &threads, 
-                    int number_of_lines, std::string fixed_word, std::string filename) {
+                    int number_of_lines, std::string word, std::string filename) {
 
     int size_task = number_of_lines/number_threads;
 
@@ -181,18 +186,31 @@ void create_and_distribute_threads(int number_threads, std::vector<std::thread> 
 
         ThreadInfo ithread(i, begin, end);
         g_threads_info.push_back(ithread);
-        threads.push_back(std::thread(search_word, fixed_word, begin, end, i, filename));
+        threads.push_back(std::thread(search_word, word, begin, end, i, filename));
     }
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
 
-/* Print results, line number and words found */
-void print_results(int number_threads) {
-    std::cout << "\n";
+/* Check if g_threads_info is empty of results */
+bool check_no_results() {
+    bool results = false;
+    
+    if (g_threads_info[0].isEmpty()) {
+        results = true;
+    }
+    return results;
+}
 
-    for (int i = 0; i < number_threads; i++) {
-        for (int j = 0; j < g_threads_info[i].m_results.size(); j++) {
-            std::cout << BHIYELLOW << "[Hilo " << g_threads_info[i].getId() << 
+/* Print results, line number and words found */
+void print_results(int number_threads) {    
+    std::cout << "\n";
+    
+    if (check_no_results()) {
+        std::cout << BHICYAN << "No hay resultados en búsqueda.\n";
+    } else {
+        for (int i = 0; i < number_threads; i++) {
+            for (int j = 0; j < g_threads_info[i].m_results.size(); j++) {
+                std::cout << BHIYELLOW << "[Hilo " << g_threads_info[i].getId() << 
                 " inicio: " << g_threads_info[i].getBegin()+1 << 
                 " - final: " << g_threads_info[i].getEnd()+1 << 
                 "] " << BHIWHITE << ":: " << BHICYAN << "línea " << 
@@ -201,6 +219,7 @@ void print_results(int number_threads) {
                 " " << g_threads_info[i].m_results[j].getWord() << 
                 " " << g_threads_info[i].m_results[j].getNextWord() << BHIWHITE <<
                 " ..." << std::endl;
+            }
         }
     }
     std::cout << "\n";
@@ -210,14 +229,15 @@ void print_results(int number_threads) {
 int main(int argc, char *argv[]) {
 
     int number_threads, number_of_lines, size_task;
-    std::string word, fixed_word, filename;
+    std::string word, filename;
     std::vector<std::thread> threads;
 
     parse_argv(argc, argv, &filename, &word, &number_threads);
     number_of_lines = get_number_of_lines(filename);
-    fixed_word = convert_to_lowercase(word);
+    word = convert_to_lowercase(word);
+    word = clean_word(word);
 
-    create_and_distribute_threads(number_threads, threads, number_of_lines, fixed_word, filename);
+    create_and_distribute_threads(number_threads, threads, number_of_lines, word, filename);
     print_results(number_threads);
 
     return 0;

@@ -15,5 +15,6 @@ public:
     int getId();
     int getBegin();
     int getEnd();
+    bool isEmpty();
     void addResult(Result result);
 };
