@@ -28,7 +28,8 @@ std::string clean_word(std::string word) {
             int(word[i] != -65) && /* open question mark */
             int(word[i] != -95) && /* open exclamation mark */
             int(word[i] != -85) && /* open special quotation mark */
-            int(word[i] != -69)) /* close special quotation mark */
+            int(word[i] != -69) &&
+            int(word[i] != -105)) /* close special quotation mark */
         {
             fixed_word += word[i];
         }
